@@ -1,4 +1,4 @@
-# attack-kong
+# extension-kong
 
 A [Steadybit](https://www.steadybit.com/) attack implementation to inject HTTP faults into [Kong API gateway](https://konghq.com/).
 
