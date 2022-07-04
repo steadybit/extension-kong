@@ -310,42 +310,102 @@ func definePlugins(config RequestTerminationConfig, instance Instance, service S
 }
 
 func startRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte) {
-	//w.Header().Set("Content-Type", "application/json")
-	//
-	//var startAttackRequest StartAttackRequest
-	//err := json.Unmarshal(body, &startAttackRequest)
-	//if err != nil {
-	//	w.WriteHeader(500)
-	//	json.NewEncoder(w).Encode(ErrorResponse{
-	//		Title:  "Failed to read request body",
-	//		Detail: err.Error(),
-	//	})
-	//	return
-	//}
-	//
-	//InfoLogger.Printf("Starting rollout restart attack for %s\n", startAttackRequest)
-	//
-	//cmd := exec.Command("kubectl",
-	//	"rollout",
-	//	"restart",
-	//	"--namespace",
-	//	startAttackRequest.State.Namespace,
-	//	fmt.Sprintf("deployment/%s", startAttackRequest.State.Deployment))
-	//cmdOut, cmdErr := cmd.CombinedOutput()
-	//if cmdErr != nil {
-	//	ErrorLogger.Printf("Failed to execute rollout restart %s: %s", cmdErr, cmdOut)
-	//	w.WriteHeader(500)
-	//	json.NewEncoder(w).Encode(ErrorResponse{
-	//		Title:  fmt.Sprintf("Failed to execute rollout restart %s: %s", cmdErr, cmdOut),
-	//		Detail: cmdErr.Error(),
-	//	})
-	//	return
-	//}
-	//
-	//json.NewEncoder(w).Encode(StartAttackResponse{
-	//	State: startAttackRequest.State,
-	//})
+	w.Header().Set("Content-Type", "application/json")
+
+	var startAttackRequest StartAttackRequest[RequestTerminationState]
+	err := json.Unmarshal(body, &startAttackRequest)
+	if err != nil {
+		w.WriteHeader(500)
+		json.NewEncoder(w).Encode(ErrorResponse{
+			Title:  "Failed to read request body",
+			Detail: err.Error(),
+		})
+		return
+	}
+
+	for _, pluginId := range startAttackRequest.State.PluginIds {
+		err := enablePlugin(startAttackRequest.State.Instance, pluginId)
+		if err != nil {
+			w.WriteHeader(500)
+			json.NewEncoder(w).Encode(ErrorResponse{
+				Title:  fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s'", pluginId),
+				Detail: err.Error(),
+			})
+			return
+		}
+	}
 }
 
-func stopRequestTermination(_ http.ResponseWriter, _ *http.Request, _ []byte) {
+type EnablePluginRequestBody struct {
+	Name    string `json:"name"`
+	Enabled bool   `json:"enabled"`
+}
+
+func enablePlugin(instance Instance, pluginId string) error {
+	req := EnablePluginRequestBody{
+		Name:    "request-termination",
+		Enabled: true,
+	}
+	body := new(bytes.Buffer)
+	json.NewEncoder(body).Encode(req)
+	url := fmt.Sprintf("%s/plugins/%s", instance.Origin, url2.PathEscape(pluginId))
+	request, _ := http.NewRequest(http.MethodPatch, url, body)
+	request.Header.Add("Content-Type", "application/json")
+	client := &http.Client{}
+
+	response, err := client.Do(request)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode != 200 {
+		return errors.New(fmt.Sprintf("Kong plugin enablement endpoint 'PATCH %s' responded with unexpected status code '%d'", url, response.StatusCode))
+	}
+
+	return nil
+}
+
+func stopRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var stopAttackRequest StopAttackRequest[RequestTerminationState]
+	err := json.Unmarshal(body, &stopAttackRequest)
+	if err != nil {
+		w.WriteHeader(500)
+		json.NewEncoder(w).Encode(ErrorResponse{
+			Title:  "Failed to read request body",
+			Detail: err.Error(),
+		})
+		return
+	}
+
+	for _, pluginId := range stopAttackRequest.State.PluginIds {
+		err := deletePlugin(stopAttackRequest.State.Instance, pluginId)
+		if err != nil {
+			w.WriteHeader(500)
+			json.NewEncoder(w).Encode(ErrorResponse{
+				Title:  fmt.Sprintf("Failed to delete plugin configuration within Kong for plugin ID '%s'", pluginId),
+				Detail: err.Error(),
+			})
+			return
+		}
+	}
+
+}
+
+func deletePlugin(instance Instance, pluginId string) error {
+	url := fmt.Sprintf("%s/plugins/%s", instance.Origin, url2.PathEscape(pluginId))
+	request, _ := http.NewRequest(http.MethodDelete, url, nil)
+	client := &http.Client{}
+
+	response, err := client.Do(request)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode != 204 {
+		return errors.New(fmt.Sprintf("Kong plugin deletion endpoint 'DELETE %s' responded with unexpected status code '%d'", url, response.StatusCode))
+	}
+
+	return nil
 }
