@@ -13,8 +13,11 @@ type ErrorResponse struct {
 	Detail string `json:"detail"`
 }
 
-type AttackListResponse struct {
-	Attacks []EndpointRef `json:"attacks"`
+type ExtensionListResponse struct {
+	Attacks          []EndpointRef `json:"attacks"`
+	Discoveries      []EndpointRef `json:"discoveries"`
+	TargetTypes      []EndpointRef `json:"targetTypes"`
+	TargetAttributes []EndpointRef `json:"targetAttributes"`
 }
 
 type AttackParameter struct {
@@ -43,7 +46,13 @@ type DescribeAttackResponse struct {
 }
 
 type PrepareAttackRequest[T any] struct {
-	Config T `json:"config"`
+	Config T            `json:"config"`
+	Target AttackTarget `json:"target"`
+}
+
+type AttackTarget struct {
+	Name       string              `json:"name"`
+	Attributes map[string][]string `json:"attributes"`
 }
 
 type PrepareAttackResponse[T any] struct {
@@ -60,4 +69,63 @@ type StartAttackResponse[T any] struct {
 
 type StopAttackRequest[T any] struct {
 	State T `json:"state"`
+}
+
+type DescribeTargetTypeResponse struct {
+	Id      string      `json:"id"`
+	Version string      `json:"version"`
+	Label   PluralLabel `json:"label"`
+	Icon    string      `json:"icon"`
+	Table   Table       `json:"table"`
+}
+
+type PluralLabel struct {
+	One   string `json:"one"`
+	Other string `json:"other"`
+}
+
+type Table struct {
+	Columns []Column `json:"columns"`
+	OrderBy []Order  `json:"orderBy"`
+}
+
+type Column struct {
+	Attribute          string `json:"attribute"`
+	FallbackAttributes string `json:"fallbackAttributes"`
+}
+
+type Order struct {
+	Attribute string `json:"attribute"`
+	Direction string `json:"direction"`
+}
+
+type DescribeDiscoveryResponse struct {
+	Id         string                       `json:"id"`
+	Discover   EndpointRefWithCallInternval `json:"discover"`
+	RestrictTo string                       `json:"restrictTo"`
+}
+
+type EndpointRefWithCallInternval struct {
+	EndpointRef
+	CallInterval string `json:"callInterval"`
+}
+
+type DescribeTargetAttributeResponse struct {
+	Attributes []TargetAttributeDescription `json:"attributes"`
+}
+
+type TargetAttributeDescription struct {
+	Attribute string      `json:"attribute"`
+	Label     PluralLabel `json:"label"`
+}
+
+type DiscoverResponse struct {
+	Targets []DiscoverTarget `json:"targets"`
+}
+
+type DiscoverTarget struct {
+	Id         string              `json:"id"`
+	Label      string              `json:"label"`
+	TargetType string              `json:"targetType"`
+	Attributes map[string][]string `json:"attributes"`
 }
