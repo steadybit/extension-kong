@@ -72,11 +72,12 @@ type StopAttackRequest[T any] struct {
 }
 
 type DescribeTargetTypeResponse struct {
-	Id      string      `json:"id"`
-	Version string      `json:"version"`
-	Label   PluralLabel `json:"label"`
-	Icon    string      `json:"icon"`
-	Table   Table       `json:"table"`
+	Id       string      `json:"id"`
+	Version  string      `json:"version"`
+	Label    PluralLabel `json:"label"`
+	Category string      `json:"category"`
+	Icon     string      `json:"icon"`
+	Table    Table       `json:"table"`
 }
 
 type PluralLabel struct {
