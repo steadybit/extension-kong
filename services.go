@@ -119,6 +119,7 @@ func getServiceTargets(instance *Instance) []DiscoverTarget {
 		}
 		if service.Name != nil {
 			attributes["kong.service.name"] = []string{*service.Name}
+			attributes["steadybit.label"] = []string{*service.Name}
 		}
 		var url strings.Builder
 		if service.Protocol != nil {
