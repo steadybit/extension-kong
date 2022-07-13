@@ -1,4 +1,4 @@
-# extension-kong
+# Steadybit extension-kong
 
 A [Steadybit](https://www.steadybit.com/) attack implementation to inject HTTP faults into [Kong API gateway](https://konghq.com/).
 
@@ -16,19 +16,16 @@ A [Steadybit](https://www.steadybit.com/) attack implementation to inject HTTP f
 
 ## Running as docker container
 
-1. Build the image:
-	  ```
-		docker build -t steadybit/extension-kong .
-		```
-
-2. Run the image:
-	  ```
-		docker run -d -p 8084:8084 --name extension-kong \
-			 -e "STEADYBIT_EXTENSION_KONG_INSTANCE_0_NAME=default" \
-			 -e "STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN=http://kong:8001" \
-			 steadybit/extension-kong
-		```
+```
+docker run -d -p 8084:8084 --name extension-kong \
+	 -e "STEADYBIT_EXTENSION_KONG_INSTANCE_0_NAME=default" \
+	 -e "STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN=http://kong:8001" \
+	 steadybit/extension-kong
+```
 
 ## Running Kong
 
 https://docs.konghq.com/gateway/latest/install-and-run/docker/
+
+## Build
+docker build -t steadybit/extension-kong .
