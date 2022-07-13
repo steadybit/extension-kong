@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/kong/go-kong/kong"
-	"golang.org/x/exp/slices"
 	"os"
 )
 
@@ -41,11 +40,12 @@ func getInstanceOrigin(n int) string {
 }
 
 func FindInstanceByName(name string) (*Instance, error) {
-	instanceIndex := slices.IndexFunc(Instances, func(i Instance) bool { return i.Name == name })
-	if instanceIndex < 0 {
-		return nil, fmt.Errorf("not found")
+	for _, i := range Instances {
+		if i.Name == name {
+			return &i, nil
+		}
 	}
-	return &Instances[instanceIndex], nil
+	return nil, fmt.Errorf("not found")
 }
 
 func (i *Instance) getClient() (*kong.Client, error) {
