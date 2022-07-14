@@ -23,6 +23,13 @@ docker run -d -p 8084:8084 --name extension-kong \
 	 steadybit/extension-kong
 ```
 
+## Running as Kubernetes Deployment
+Be aware to change the environment variables `STEADYBIT_EXTENSION_KONG_INSTANCE_0_NAME`and `STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN` in the Kubernetes manifest to match your Kong instance.
+
+```shell
+kubectl apply -f examples/kubernetes.yml
+```
+
 ## Build
 docker build -t steadybit/extension-kong .
 
