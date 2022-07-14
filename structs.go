@@ -36,6 +36,7 @@ type DescribeAttackResponse struct {
 	Label       string            `json:"label"`
 	Description string            `json:"description"`
 	Version     string            `json:"version"`
+	Icon        string            `json:"icon"`
 	Category    string            `json:"category"`
 	Target      string            `json:"target"`
 	TimeControl string            `json:"timeControl"`
