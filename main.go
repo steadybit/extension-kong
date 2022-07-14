@@ -8,18 +8,19 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"runtime/debug"
 )
 
 func main() {
-	http.Handle("/", loggingMiddleware(rootHandler))
-	http.Handle("/attacks/request-termination", loggingMiddleware(describeRequestTermination))
-	http.Handle("/attacks/request-termination/prepare", loggingMiddleware(prepareRequestTermination))
-	http.Handle("/attacks/request-termination/start", loggingMiddleware(startRequestTermination))
-	http.Handle("/attacks/request-termination/stop", loggingMiddleware(stopRequestTermination))
-	http.Handle("/discoveries/services", loggingMiddleware(describeServices))
-	http.Handle("/discoveries/services/type", loggingMiddleware(describeServiceType))
-	http.Handle("/discoveries/services/type/attributes", loggingMiddleware(describeKongTypeAttributes))
-	http.Handle("/discoveries/services/discover", loggingMiddleware(discoverServices))
+	http.Handle("/", panicRecovery(logRequest(rootHandler)))
+	http.Handle("/attacks/request-termination", panicRecovery(logRequest(describeRequestTermination)))
+	http.Handle("/attacks/request-termination/prepare", panicRecovery(logRequest(prepareRequestTermination)))
+	http.Handle("/attacks/request-termination/start", panicRecovery(logRequest(startRequestTermination)))
+	http.Handle("/attacks/request-termination/stop", panicRecovery(logRequest(stopRequestTermination)))
+	http.Handle("/discoveries/services", panicRecovery(logRequest(describeServices)))
+	http.Handle("/discoveries/services/type", panicRecovery(logRequest(describeServiceType)))
+	http.Handle("/discoveries/services/type/attributes", panicRecovery(logRequest(describeKongTypeAttributes)))
+	http.Handle("/discoveries/services/discover", panicRecovery(logRequest(discoverServices)))
 
 	port := 8084
 	InfoLogger.Printf("Starting kong extension server on port %d. Get started via /\n", port)
@@ -61,8 +62,20 @@ func rootHandler(w http.ResponseWriter, request *http.Request, _ []byte) {
 	})
 }
 
-func loggingMiddleware(next func(w http.ResponseWriter, r *http.Request, body []byte)) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func panicRecovery(next func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if err := recover(); err != nil {
+				ErrorLogger.Printf("Panic: %v\n %s", err, string(debug.Stack()))
+				writeError(w, "Internal Server Error", nil)
+			}
+		}()
+		next(w, r)
+	}
+}
+
+func logRequest(next func(w http.ResponseWriter, r *http.Request, body []byte)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		body, bodyReadErr := ioutil.ReadAll(r.Body)
 		if bodyReadErr != nil {
 			http.Error(w, bodyReadErr.Error(), http.StatusBadRequest)
@@ -76,7 +89,7 @@ func loggingMiddleware(next func(w http.ResponseWriter, r *http.Request, body []
 		}
 
 		next(w, r, body)
-	})
+	}
 }
 
 func writeError(w http.ResponseWriter, title string, err error) {
@@ -90,6 +103,7 @@ func writeError(w http.ResponseWriter, title string, err error) {
 	}
 	json.NewEncoder(w).Encode(response)
 }
+
 func writeBody(w http.ResponseWriter, response any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
