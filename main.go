@@ -6,6 +6,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/steadybit/attack-kit/go/attack_kit_api"
+	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
 	"io/ioutil"
 	"net/http"
 	"runtime/debug"
@@ -28,6 +30,13 @@ func main() {
 	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 }
 
+type ExtensionListResponse struct {
+	Discoveries      []discovery_kit_api.DescribingEndpointReference `json:"discoveries"`
+	TargetTypes      []discovery_kit_api.DescribingEndpointReference `json:"targetTypes"`
+	TargetAttributes []discovery_kit_api.DescribingEndpointReference `json:"targetAttributes"`
+	Attacks          []attack_kit_api.DescribingEndpointReference    `json:"attacks"`
+}
+
 func rootHandler(w http.ResponseWriter, request *http.Request, _ []byte) {
 	if request.URL.Path != "/" {
 		w.WriteHeader(404)
@@ -35,25 +44,25 @@ func rootHandler(w http.ResponseWriter, request *http.Request, _ []byte) {
 	}
 
 	writeBody(w, ExtensionListResponse{
-		Attacks: []EndpointRef{
+		Attacks: []attack_kit_api.DescribingEndpointReference{
 			{
 				"GET",
 				"/attacks/request-termination",
 			},
 		},
-		Discoveries: []EndpointRef{
+		Discoveries: []discovery_kit_api.DescribingEndpointReference{
 			{
 				"GET",
 				"/discoveries/services",
 			},
 		},
-		TargetTypes: []EndpointRef{
+		TargetTypes: []discovery_kit_api.DescribingEndpointReference{
 			{
 				"GET",
 				"/discoveries/services/type",
 			},
 		},
-		TargetAttributes: []EndpointRef{
+		TargetAttributes: []discovery_kit_api.DescribingEndpointReference{
 			{
 				"GET",
 				"/discoveries/services/type/attributes",
@@ -95,11 +104,11 @@ func logRequest(next func(w http.ResponseWriter, r *http.Request, body []byte)) 
 func writeError(w http.ResponseWriter, title string, err error) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(500)
-	var response ErrorResponse
+	var response discovery_kit_api.DiscoveryKitError
 	if err != nil {
-		response = ErrorResponse{Title: title, Detail: err.Error()}
+		response = discovery_kit_api.DiscoveryKitError{Title: title, Detail: discovery_kit_api.Ptr(err.Error())}
 	} else {
-		response = ErrorResponse{Title: title}
+		response = discovery_kit_api.DiscoveryKitError{Title: title}
 	}
 	json.NewEncoder(w).Encode(response)
 }
