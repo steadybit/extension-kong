@@ -7,80 +7,76 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/kong/go-kong/kong"
+	"github.com/mitchellh/mapstructure"
+	"github.com/steadybit/attack-kit/go/attack_kit_api"
 	"github.com/steadybit/extension-kong/utils"
 	"net/http"
 )
 
-type RequestTerminationConfig struct {
-	Message  string `json:"message"`
-	Status   int    `json:"status"`
-	Consumer string `json:"consumer"`
-}
-
 type RequestTerminationState struct {
-	Plugins  []*kong.Plugin `json:"plugins"`
-	Instance Instance       `json:"instance"`
+	Plugins  []*kong.Plugin
+	Instance Instance
 }
 
 func describeRequestTermination(w http.ResponseWriter, _ *http.Request, _ []byte) {
-	writeBody(w, DescribeAttackResponse{
+	writeBody(w, attack_kit_api.AttackDescription{
 		Id:          "com.github.steadybit.extension_kong.request_termination",
 		Label:       "Terminate requests",
 		Description: "Leverage the Kong request-termination plugin to inject HTTP failures.",
 		Version:     "1.1.0",
-		Icon:        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cpath d='M20.986 50.552h11.662l6.055 7.54-1.04 2.568H22.596l.37-2.568-3.552-5.548zm8.238-33.765 6.33-.01L64 50.428l-2.2 10.23H49.61l.76-2.883-26.58-31.452zM40.518 3.34 53.68 13.758l-1.685 1.75 2.282 3.2v3.422l-6.563 5.386L36.68 14.39h-6.426l2.587-4.774zm-27.46 32.852 9.256-7.935L34.6 42.84l-3.5 5.342H19.782l-7.837 10.144-1.8 2.333H0V48.213l9.465-12.02z' fill='%23003459' fill-rule='evenodd'/%3E%3C/svg%3E",
-		Target:      "com.github.steadybit.extension_kong.service",
+		Icon:        attack_kit_api.Ptr("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cpath d='M20.986 50.552h11.662l6.055 7.54-1.04 2.568H22.596l.37-2.568-3.552-5.548zm8.238-33.765 6.33-.01L64 50.428l-2.2 10.23H49.61l.76-2.883-26.58-31.452zM40.518 3.34 53.68 13.758l-1.685 1.75 2.282 3.2v3.422l-6.563 5.386L36.68 14.39h-6.426l2.587-4.774zm-27.46 32.852 9.256-7.935L34.6 42.84l-3.5 5.342H19.782l-7.837 10.144-1.8 2.333H0V48.213l9.465-12.02z' fill='%23003459' fill-rule='evenodd'/%3E%3C/svg%3E"),
+		TargetType:  "com.github.steadybit.extension_kong.service",
 		Category:    "network",
 		TimeControl: "EXTERNAL",
-		Parameters: []AttackParameter{
+		Parameters: []attack_kit_api.AttackParameter{
 			{
 				Label:        "Duration",
 				Name:         "duration",
 				Type:         "duration",
-				Advanced:     false,
-				Required:     true,
-				DefaultValue: "30s",
+				Advanced:     attack_kit_api.Ptr(false),
+				Required:     attack_kit_api.Ptr(true),
+				DefaultValue: attack_kit_api.Ptr("30s"),
 			},
 			{
 				Label:       "Consumer Username or ID",
 				Name:        "consumer",
-				Description: "You may optionally define for which Kong consumer the traffic should be impacted.",
+				Description: attack_kit_api.Ptr("You may optionally define for which Kong consumer the traffic should be impacted."),
 				Type:        "string",
-				Advanced:    false,
-				Required:    false,
+				Advanced:    attack_kit_api.Ptr(false),
+				Required:    attack_kit_api.Ptr(false),
 			},
 			{
 				Label:        "Message",
 				Name:         "message",
 				Type:         "string",
-				Advanced:     true,
-				DefaultValue: "Error injected through the Steadybit Kong extension (through the request-termination Kong plugin)",
+				Advanced:     attack_kit_api.Ptr(true),
+				DefaultValue: attack_kit_api.Ptr("Error injected through the Steadybit Kong extension (through the request-termination Kong plugin)"),
 			},
 			{
 				Label:        "HTTP status code",
 				Name:         "status",
 				Type:         "integer",
-				Advanced:     true,
-				DefaultValue: "500",
+				Advanced:     attack_kit_api.Ptr(true),
+				DefaultValue: attack_kit_api.Ptr("500"),
 			},
 		},
-		Prepare: EndpointRef{
-			"POST",
-			"/attacks/request-termination/prepare",
+		Prepare: attack_kit_api.MutatingEndpointReference{
+			Method: "POST",
+			Path:   "/attacks/request-termination/prepare",
 		},
-		Start: EndpointRef{
-			"POST",
-			"/attacks/request-termination/start",
+		Start: attack_kit_api.MutatingEndpointReference{
+			Method: "POST",
+			Path:   "/attacks/request-termination/start",
 		},
-		Stop: EndpointRef{
-			"POST",
-			"/attacks/request-termination/stop",
-		},
+		Stop: attack_kit_api.Ptr(attack_kit_api.MutatingEndpointReference{
+			Method: "POST",
+			Path:   "/attacks/request-termination/stop",
+		}),
 	})
 }
 
 func prepareRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte) {
-	var request PrepareAttackRequest[RequestTerminationConfig]
+	var request attack_kit_api.PrepareAttackRequestBody
 	err := json.Unmarshal(body, &request)
 	if err != nil {
 		writeError(w, "Failed to read request body", err)
@@ -100,7 +96,7 @@ func prepareRequestTermination(w http.ResponseWriter, _ *http.Request, body []by
 	}
 
 	serviceId := findFirstValue(request.Target.Attributes, "kong.service.id")
-	if instanceName == nil {
+	if serviceId == nil {
 		writeError(w, "Missing target attribute 'kong.service.id'", nil)
 		return
 	}
@@ -112,10 +108,11 @@ func prepareRequestTermination(w http.ResponseWriter, _ *http.Request, body []by
 	}
 
 	var consumer *kong.Consumer = nil
-	if len(request.Config.Consumer) > 0 {
-		consumer, err = instance.FindConsumer(&request.Config.Consumer)
+	if request.Config["consumer"] != nil {
+		configuredConsumer := request.Config["consumer"].(string)
+		consumer, err = instance.FindConsumer(&configuredConsumer)
 		if err != nil {
-			writeError(w, fmt.Sprintf("Failed to find consumer '%s' within Kong", request.Config.Consumer), err)
+			writeError(w, fmt.Sprintf("Failed to find consumer '%s' within Kong", configuredConsumer), err)
 			return
 		}
 	}
@@ -129,8 +126,8 @@ func prepareRequestTermination(w http.ResponseWriter, _ *http.Request, body []by
 		Service:  service,
 		Consumer: consumer,
 		Config: kong.Configuration{
-			"status_code": request.Config.Status,
-			"message":     request.Config.Message,
+			"status_code": request.Config["status"].(float64),
+			"message":     request.Config["message"].(string),
 		},
 	})
 	if err != nil {
@@ -138,27 +135,51 @@ func prepareRequestTermination(w http.ResponseWriter, _ *http.Request, body []by
 		return
 	}
 
-	writeBody(w, PrepareAttackResponse[RequestTerminationState]{
-		State: RequestTerminationState{
-			Instance: *instance,
-			Plugins: []*kong.Plugin{
-				plugin,
-			},
+	err, encodedState := encodeAttackState(RequestTerminationState{
+		Instance: *instance,
+		Plugins: []*kong.Plugin{
+			plugin,
 		},
+	})
+	if err != nil {
+		writeError(w, "Failed to encode attack state", err)
+		return
+	}
+
+	writeBody(w, attack_kit_api.AttackStateAndMessages{
+		State: encodedState,
 	})
 }
 
+func decodeAttackState(attackState attack_kit_api.AttackState) (error, RequestTerminationState) {
+	var result RequestTerminationState
+	err := mapstructure.Decode(attackState, &result)
+	return err, result
+}
+
+func encodeAttackState(attackState RequestTerminationState) (error, attack_kit_api.AttackState) {
+	var result attack_kit_api.AttackState
+	err := mapstructure.Decode(attackState, &result)
+	return err, result
+}
+
 func startRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte) {
-	var startAttackRequest StartAttackRequest[RequestTerminationState]
+	var startAttackRequest attack_kit_api.StartAttackRequestBody
 	err := json.Unmarshal(body, &startAttackRequest)
 	if err != nil {
 		writeError(w, "Failed to read request body", err)
 		return
 	}
 
-	instance := startAttackRequest.State.Instance
-	updatedPlugins := make([]*kong.Plugin, len(startAttackRequest.State.Plugins))
-	for i, plugin := range startAttackRequest.State.Plugins {
+	err, state := decodeAttackState(startAttackRequest.State)
+	if err != nil {
+		writeError(w, "Failed to decode attack state", err)
+		return
+	}
+
+	instance := state.Instance
+	updatedPlugins := make([]*kong.Plugin, len(state.Plugins))
+	for i, plugin := range state.Plugins {
 		updatedPlugin, err := instance.UpdatePlugin(&kong.Plugin{
 			ID:      plugin.ID,
 			Enabled: utils.Bool(true),
@@ -170,26 +191,38 @@ func startRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte
 		}
 	}
 
-	writeBody(w, StartAttackResponse[RequestTerminationState]{
-		State: RequestTerminationState{
-			Instance: instance,
-			Plugins:  updatedPlugins,
-		},
+	err, outputState := encodeAttackState(RequestTerminationState{
+		Instance: instance,
+		Plugins:  updatedPlugins,
+	})
+	if err != nil {
+		writeError(w, "Failed to encode attack state", err)
+		return
+	}
+
+	writeBody(w, attack_kit_api.AttackStateAndMessages{
+		State: outputState,
 	})
 }
 
 func stopRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var stopAttackRequest StopAttackRequest[RequestTerminationState]
+	var stopAttackRequest attack_kit_api.StopAttackRequestBody
 	err := json.Unmarshal(body, &stopAttackRequest)
 	if err != nil {
 		writeError(w, "Failed to read request body", err)
 		return
 	}
 
-	instance := stopAttackRequest.State.Instance
-	for _, plugin := range stopAttackRequest.State.Plugins {
+	err, state := decodeAttackState(stopAttackRequest.State)
+	if err != nil {
+		writeError(w, "Failed to decode attack state", err)
+		return
+	}
+
+	instance := state.Instance
+	for _, plugin := range state.Plugins {
 		err := instance.DeletePlugin(plugin.ID)
 		if err != nil {
 			writeError(w, fmt.Sprintf("Failed to delete plugin within Kong for plugin ID '%s'", *plugin.ID), err)
