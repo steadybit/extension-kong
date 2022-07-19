@@ -11,7 +11,7 @@ require github.com/steadybit/attack-kit/go/attack_kit_api v0.1.0
 
 require (
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/steadybit/discovery-kit/go/discovery_kit_api v0.0.0-20220719120029-e34fe4d0b09d
+	github.com/steadybit/discovery-kit/go/discovery_kit_api v0.1.0
 )
 
 require (
