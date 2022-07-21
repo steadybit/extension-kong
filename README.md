@@ -9,10 +9,12 @@ A [Steadybit](https://www.steadybit.com/) attack implementation to inject HTTP f
 
 ## Configuration
 
-| Environment Variable                           |                                 |
-|------------------------------------------------|---------------------------------|
-| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_NAME`   | Name of the kong instance       |
-| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_ORIGIN` | Url of the kong admin interface |
+| Environment Variable                                 |                                                                                                  |
+|------------------------------------------------------|--------------------------------------------------------------------------------------------------|
+| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_NAME`         | Name of the kong instance                                                                        |
+| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_ORIGIN`       | Url of the kong admin interface                                                                  |
+| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_HEADER_KEY`   | Optional header key to send to the Kong admin API. Typically used for authentication purposes.   |
+| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_HEADER_VALUE` | Optional header value to send to the Kong admin API. Typically used for authentication purposes. |
 
 ## Running as docker container
 

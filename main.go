@@ -26,7 +26,14 @@ func main() {
 
 	port := 8084
 	InfoLogger.Printf("Starting kong extension server on port %d. Get started via /\n", port)
-	InfoLogger.Printf("Starting with configuration %s\n", Instances)
+	InfoLogger.Printf("Starting with configuration:\n")
+	for _, instance := range Instances {
+		if instance.isAuthenticated() {
+			InfoLogger.Printf("  %s: %s (authenticated with %s header)", instance.Name, instance.BaseUrl, instance.HeaderKey)
+		} else {
+			InfoLogger.Printf("  %s: %s", instance.Name, instance.BaseUrl)
+		}
+	}
 	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 }
 
