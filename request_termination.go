@@ -110,10 +110,12 @@ func prepareRequestTermination(w http.ResponseWriter, _ *http.Request, body []by
 	var consumer *kong.Consumer = nil
 	if request.Config["consumer"] != nil {
 		configuredConsumer := request.Config["consumer"].(string)
-		consumer, err = instance.FindConsumer(&configuredConsumer)
-		if err != nil {
-			writeError(w, fmt.Sprintf("Failed to find consumer '%s' within Kong", configuredConsumer), err)
-			return
+		if len(configuredConsumer) > 0 {
+			consumer, err = instance.FindConsumer(&configuredConsumer)
+			if err != nil {
+				writeError(w, fmt.Sprintf("Failed to find consumer '%s' within Kong", configuredConsumer), err)
+				return
+			}
 		}
 	}
 
