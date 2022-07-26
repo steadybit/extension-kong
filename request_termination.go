@@ -14,8 +14,8 @@ import (
 )
 
 type RequestTerminationState struct {
-	Plugins  []*kong.Plugin
-	Instance Instance
+	Plugins      []*kong.Plugin
+	InstanceName string
 }
 
 func describeRequestTermination(w http.ResponseWriter, _ *http.Request, _ []byte) {
@@ -138,7 +138,7 @@ func prepareRequestTermination(w http.ResponseWriter, _ *http.Request, body []by
 	}
 
 	err, encodedState := encodeAttackState(RequestTerminationState{
-		Instance: *instance,
+		InstanceName: instance.Name,
 		Plugins: []*kong.Plugin{
 			plugin,
 		},
@@ -179,7 +179,12 @@ func startRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte
 		return
 	}
 
-	instance := state.Instance
+	instance, err := FindInstanceByName(state.InstanceName)
+	if err != nil {
+		writeError(w, fmt.Sprintf("Failed to find a configured instance named '%s'", state.InstanceName), err)
+		return
+	}
+
 	updatedPlugins := make([]*kong.Plugin, len(state.Plugins))
 	for i, plugin := range state.Plugins {
 		updatedPlugin, err := instance.UpdatePlugin(&kong.Plugin{
@@ -194,8 +199,8 @@ func startRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte
 	}
 
 	err, outputState := encodeAttackState(RequestTerminationState{
-		Instance: instance,
-		Plugins:  updatedPlugins,
+		InstanceName: instance.Name,
+		Plugins:      updatedPlugins,
 	})
 	if err != nil {
 		writeError(w, "Failed to encode attack state", err)
@@ -223,7 +228,12 @@ func stopRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte)
 		return
 	}
 
-	instance := state.Instance
+	instance, err := FindInstanceByName(state.InstanceName)
+	if err != nil {
+		writeError(w, fmt.Sprintf("Failed to find a configured instance named '%s'", state.InstanceName), err)
+		return
+	}
+
 	for _, plugin := range state.Plugins {
 		err := instance.DeletePlugin(plugin.ID)
 		if err != nil {

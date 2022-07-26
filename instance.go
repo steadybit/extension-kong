@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/kong/go-kong/kong"
-	"net/http"
 	"os"
 )
 
@@ -66,13 +65,15 @@ func (i *Instance) isAuthenticated() bool {
 }
 
 func (i *Instance) getClient() (*kong.Client, error) {
-	var client *http.Client
-	if i.isAuthenticated() {
-		headers := map[string][]string{
-			i.HeaderKey: {i.HeaderValue},
-		}
-		client = kong.HTTPClientWithHeaders(nil, headers)
+	headers := map[string][]string{
+		"User-Agent": {"steadybit-extension-kong"},
 	}
+
+	if i.isAuthenticated() {
+		headers[i.HeaderKey] = []string{i.HeaderValue}
+	}
+
+	client := kong.HTTPClientWithHeaders(nil, headers)
 	return kong.NewClient(&i.BaseUrl, client)
 }
 
