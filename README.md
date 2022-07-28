@@ -1,3 +1,4 @@
+<img src="./Kong_2x.png" width="300" align="right" alt="Kong logo">
 # Steadybit extension-kong
 
 A [Steadybit](https://www.steadybit.com/) attack implementation to inject HTTP faults into [Kong API gateway](https://konghq.com/).
