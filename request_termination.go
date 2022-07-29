@@ -59,6 +59,13 @@ func describeRequestTermination(w http.ResponseWriter, _ *http.Request, _ []byte
 				Advanced:     attack_kit_api.Ptr(true),
 				DefaultValue: attack_kit_api.Ptr("500"),
 			},
+			{
+				Label:       "Trigger",
+				Name:        "trigger",
+				Type:        "string",
+				Description: attack_kit_api.Ptr("When not set, the plugin always activates. When set to a string, the plugin will activate exclusively on requests containing either a header or a query parameter that is named the string."),
+				Advanced:    attack_kit_api.Ptr(true),
+			},
 		},
 		Prepare: attack_kit_api.MutatingEndpointReference{
 			Method: "POST",
@@ -130,6 +137,7 @@ func prepareRequestTermination(w http.ResponseWriter, _ *http.Request, body []by
 		Config: kong.Configuration{
 			"status_code": request.Config["status"].(float64),
 			"message":     request.Config["message"].(string),
+			"trigger":     request.Config["trigger"].(string),
 		},
 	})
 	if err != nil {
