@@ -53,6 +53,20 @@ func describeRequestTermination(w http.ResponseWriter, _ *http.Request, _ []byte
 				DefaultValue: attack_kit_api.Ptr("Error injected through the Steadybit Kong extension (through the request-termination Kong plugin)"),
 			},
 			{
+				Label:        "Content-Type",
+				Name:         "content_type",
+				Type:         "string",
+				Advanced:     attack_kit_api.Ptr(true),
+				DefaultValue: attack_kit_api.Ptr("Content type of the raw response configured with Body."),
+			},
+			{
+				Label:        "Body",
+				Name:         "body",
+				Type:         "string",
+				Advanced:     attack_kit_api.Ptr(true),
+				DefaultValue: attack_kit_api.Ptr("The raw response body to send. This is mutually exclusive with the config.message field"),
+			},
+			{
 				Label:        "HTTP status code",
 				Name:         "status",
 				Type:         "integer",
@@ -126,6 +140,11 @@ func prepareRequestTermination(w http.ResponseWriter, _ *http.Request, body []by
 		}
 	}
 
+	if request.Config["message"] != nil && request.Config["body"] != nil {
+		writeError(w, "You can't have a message and a body, please choose your return", err)
+		return
+	}
+
 	plugin, err := instance.CreatePlugin(&kong.Plugin{
 		Name:    utils.String("request-termination"),
 		Enabled: utils.Bool(false),
@@ -135,9 +154,11 @@ func prepareRequestTermination(w http.ResponseWriter, _ *http.Request, body []by
 		Service:  service,
 		Consumer: consumer,
 		Config: kong.Configuration{
-			"status_code": request.Config["status"].(float64),
-			"message":     request.Config["message"].(string),
-			"trigger":     request.Config["trigger"].(string),
+			"status_code":  request.Config["status"].(float64),
+			"message":      request.Config["message"].(string),
+			"content_type": request.Config["content_type"].(string),
+			"body":         request.Config["body"].(string),
+			"trigger":      request.Config["trigger"].(string),
 		},
 	})
 	if err != nil {
