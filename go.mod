@@ -19,6 +19,7 @@ require (
 
 replace (
 	github.com/containerd/containerd v1.5.9 => github.com/containerd/containerd v1.6.6
+	github.com/containerd/containerd v1.6.1 => github.com/containerd/containerd v1.6.6
 	github.com/docker/distribution v2.7.1+incompatible => github.com/distribution/distribution v2.8.1+incompatible
 	github.com/opencontainers/runc v1.0.2 => github.com/opencontainers/runc v1.1.3
 )
@@ -30,7 +31,7 @@ require (
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.2 // indirect
 	github.com/containerd/cgroups v1.0.3 // indirect
-	github.com/containerd/containerd v1.6.1 // indirect
+	github.com/containerd/containerd v1.6.6 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v20.10.11+incompatible // indirect
