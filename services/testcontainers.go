@@ -36,8 +36,11 @@ type WithTestContainersCase struct {
 func WithTestContainers(t *testing.T, testCases []WithTestContainersCase) {
 	tcs, err := setupTestContainers(context.Background())
 	require.NoError(t, err)
-	instance := tcs.Instance
 	defer tcs.Terminate(t, context.Background())
+
+	instance := tcs.Instance
+	config.Instances = append(config.Instances, *instance)
+	defer resetGlobalInstanceConfiguration()
 
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
@@ -45,19 +48,29 @@ func WithTestContainers(t *testing.T, testCases []WithTestContainersCase) {
 			tc.Test(t, instance)
 		})
 	}
+}
 
-	fmt.Sprintf("Cleanup!")
+func resetGlobalInstanceConfiguration() {
+	config.Instances = []config.Instance{}
 }
 
 func cleanupKong(t *testing.T, instance *config.Instance) {
 	client, err := instance.GetClient()
 	require.NoError(t, err)
 
+	// delete all services
 	services, err := client.Services.ListAll(context.Background())
 	require.NoError(t, err)
-
 	for _, service := range services {
 		err = client.Services.Delete(context.Background(), service.ID)
+		require.NoError(t, err)
+	}
+
+	// delete all plugins
+	plugins, err := client.Plugins.ListAll(context.Background())
+	require.NoError(t, err)
+	for _, plugin := range plugins {
+		err = client.Plugins.Delete(context.Background(), plugin.ID)
 		require.NoError(t, err)
 	}
 }
