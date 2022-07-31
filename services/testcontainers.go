@@ -73,6 +73,14 @@ func cleanupKong(t *testing.T, instance *config.Instance) {
 		err = client.Plugins.Delete(context.Background(), plugin.ID)
 		require.NoError(t, err)
 	}
+
+	// delete all consumers
+	consumers, err := client.Consumers.ListAll(context.Background())
+	require.NoError(t, err)
+	for _, consumer := range consumers {
+		err = client.Consumers.Delete(context.Background(), consumer.ID)
+		require.NoError(t, err)
+	}
 }
 
 func setupTestContainers(ctx context.Context) (*TestContainers, error) {

@@ -18,7 +18,7 @@ func RegisterServiceAttackHandlers() {
 	utils.RegisterHttpHandler("/service/attack/request-termination", utils.GetterAsHandler(getServiceRequestTerminationAttackDescription))
 	utils.RegisterHttpHandler("/service/attack/request-termination/prepare", prepareRequestTermination)
 	utils.RegisterHttpHandler("/service/attack/request-termination/start", startRequestTermination)
-	//utils.RegisterHttpHandler("/service/attack/request-termination/stop", stopRequestTermination)
+	utils.RegisterHttpHandler("/service/attack/request-termination/stop", stopRequestTermination)
 }
 
 func getServiceRequestTerminationAttackDescription() attack_kit_api.AttackDescription {
@@ -200,34 +200,37 @@ func StartRequestTermination(body []byte) (*RequestTerminationState, *attack_kit
 }
 
 func stopRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte) {
-	w.Header().Set("Content-Type", "application/json")
+	err := StopRequestTermination(body)
+	if err != nil {
+		utils.WriteError(w, *err)
+	}
+}
 
+func StopRequestTermination(body []byte) *attack_kit_api.AttackKitError {
 	var stopAttackRequest attack_kit_api.StopAttackRequestBody
 	err := json.Unmarshal(body, &stopAttackRequest)
 	if err != nil {
-		utils.WriteError(w, utils.ToError("Failed to read request body", err))
-		return
+		return attack_kit_api.Ptr(utils.ToError("Failed to parse request body", err))
 	}
 
 	err, state := decodeAttackState(stopAttackRequest.State)
 	if err != nil {
-		utils.WriteError(w, utils.ToError("Failed to decode attack state", err))
-		return
+		return attack_kit_api.Ptr(utils.ToError("Failed to decode attack state", err))
 	}
 
 	instance, err := config.FindInstanceByName(state.InstanceName)
 	if err != nil {
-		utils.WriteError(w, utils.ToError(fmt.Sprintf("Failed to find a configured instance named '%s'", state.InstanceName), err))
-		return
+		return attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to find a configured instance named '%s'", state.InstanceName), err))
 	}
 
 	for _, pluginId := range state.PluginIds {
 		err := instance.DeletePlugin(&pluginId)
 		if err != nil {
-			utils.WriteError(w, utils.ToError(fmt.Sprintf("Failed to delete plugin within Kong for plugin ID '%s'", pluginId), err))
-			return
+			return attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to delete plugin within Kong for plugin ID '%s'", pluginId), err))
 		}
 	}
+
+	return nil
 }
 
 func findFirstValue(attributes map[string][]string, key string) *string {

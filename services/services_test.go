@@ -10,6 +10,7 @@ import (
 	"github.com/steadybit/attack-kit/go/attack_kit_api"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
 	"github.com/steadybit/extension-kong/config"
+	"github.com/steadybit/extension-kong/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -43,6 +44,12 @@ func TestKongServices(t *testing.T) {
 		}, {
 			Name: "prepare with a known consumer",
 			Test: testPrepareWithConsumer,
+		}, {
+			Name: "start enables plugins",
+			Test: testStartEnablesPlugin,
+		}, {
+			Name: "stop deletes plugins",
+			Test: testStopDeletesPlugin,
 		},
 	})
 }
@@ -147,8 +154,6 @@ func testPrepareConfiguresDisabledPlugin(t *testing.T, instance *config.Instance
 	assert.Nil(t, plugin.Consumer)
 	assert.Equal(t, 200.0, plugin.Config["status_code"])
 	assert.Equal(t, "Hello from Kong extension", plugin.Config["message"])
-	_, err = client.Plugins.Get(context.Background(), plugin.ID)
-
 }
 
 func testPrepareFailsOnUnknownConsumer(t *testing.T, instance *config.Instance) {
@@ -210,6 +215,92 @@ func testPrepareWithConsumer(t *testing.T, instance *config.Instance) {
 	plugin, err := client.Plugins.Get(context.Background(), &state.PluginIds[0])
 	require.NoError(t, err)
 	assert.Equal(t, *consumer.ID, *plugin.Consumer.ID)
+}
+
+func testStartEnablesPlugin(t *testing.T, instance *config.Instance) {
+	// Given
+	state := getSuccessfulPreparationState(t, instance)
+	encodedState, err := utils.EncodeAttackState(state)
+	require.NoError(t, err)
+	startRequestBodyJson, err := json.Marshal(attack_kit_api.StartAttackRequestBody{
+		State: encodedState,
+	})
+	require.NoError(t, err)
+
+	client, err := instance.GetClient()
+	require.NoError(t, err)
+
+	// When
+	newState, attackKitError := StartRequestTermination(startRequestBodyJson)
+
+	// Then
+	assert.Nil(t, attackKitError)
+	assert.Equal(t, instance.Name, newState.InstanceName)
+	assert.Equal(t, state.PluginIds[0], newState.PluginIds[0])
+	plugin, err := client.Plugins.Get(context.Background(), &state.PluginIds[0])
+	require.NoError(t, err)
+	assert.Equal(t, true, *plugin.Enabled)
+	assert.NotNil(t, *plugin.Service.ID)
+	assert.Equal(t, 200.0, plugin.Config["status_code"])
+	assert.Equal(t, "Hello from Kong extension", plugin.Config["message"])
+}
+
+func getSuccessfulPreparationState(t *testing.T, instance *config.Instance) *RequestTerminationState {
+	service := configureService(t, instance, getTestService())
+	requestBody := attack_kit_api.PrepareAttackRequestBody{
+		Config: map[string]interface{}{
+			"status":  200,
+			"message": "Hello from Kong extension",
+		},
+		Target: attack_kit_api.Target{
+			Attributes: map[string][]string{
+				"kong.instance.name": {instance.Name},
+				"kong.service.id":    {*service.ID},
+			},
+		},
+	}
+	prepareRequestBodyJson, err := json.Marshal(requestBody)
+	require.NoError(t, err)
+
+	state, attackKitError := PrepareRequestTermination(prepareRequestBodyJson)
+	require.Nil(t, attackKitError)
+	return state
+}
+
+func getSuccessfulStartState(t *testing.T, instance *config.Instance) *RequestTerminationState {
+	prepareState := getSuccessfulPreparationState(t, instance)
+	encodedState, err := utils.EncodeAttackState(prepareState)
+	require.NoError(t, err)
+	startRequestBodyJson, err := json.Marshal(attack_kit_api.StartAttackRequestBody{
+		State: encodedState,
+	})
+	require.NoError(t, err)
+
+	startState, attackKitError := StartRequestTermination(startRequestBodyJson)
+	assert.Nil(t, attackKitError)
+	return startState
+}
+
+func testStopDeletesPlugin(t *testing.T, instance *config.Instance) {
+	// Given
+	state := getSuccessfulStartState(t, instance)
+	encodedState, err := utils.EncodeAttackState(state)
+	require.NoError(t, err)
+	stopRequestBodyJson, err := json.Marshal(attack_kit_api.StartAttackRequestBody{
+		State: encodedState,
+	})
+	require.NoError(t, err)
+
+	client, err := instance.GetClient()
+	require.NoError(t, err)
+
+	// When
+	attackKitError := StopRequestTermination(stopRequestBodyJson)
+
+	// Then
+	assert.Nil(t, attackKitError)
+	_, err = client.Plugins.Get(context.Background(), &state.PluginIds[0])
+	assert.Error(t, err)
 }
 
 func getTestService() *kong.Service {
