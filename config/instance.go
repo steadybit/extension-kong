@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: 2022 Steadybit GmbH
 
-package main
+package config
 
 import (
 	"context"
@@ -60,16 +60,16 @@ func FindInstanceByName(name string) (*Instance, error) {
 	return nil, fmt.Errorf("not found")
 }
 
-func (i *Instance) isAuthenticated() bool {
+func (i *Instance) IsAuthenticated() bool {
 	return len(i.HeaderKey) > 0 && len(i.HeaderValue) > 0
 }
 
-func (i *Instance) getClient() (*kong.Client, error) {
+func (i *Instance) GetClient() (*kong.Client, error) {
 	headers := map[string][]string{
 		"User-Agent": {"steadybit-extension-kong"},
 	}
 
-	if i.isAuthenticated() {
+	if i.IsAuthenticated() {
 		headers[i.HeaderKey] = []string{i.HeaderValue}
 	}
 
@@ -78,7 +78,7 @@ func (i *Instance) getClient() (*kong.Client, error) {
 }
 
 func (i *Instance) FindService(nameOrId *string) (*kong.Service, error) {
-	client, err := i.getClient()
+	client, err := i.GetClient()
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (i *Instance) FindService(nameOrId *string) (*kong.Service, error) {
 }
 
 func (i *Instance) FindConsumer(nameOrId *string) (*kong.Consumer, error) {
-	client, err := i.getClient()
+	client, err := i.GetClient()
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (i *Instance) FindConsumer(nameOrId *string) (*kong.Consumer, error) {
 }
 
 func (i *Instance) CreatePlugin(plugin *kong.Plugin) (*kong.Plugin, error) {
-	client, err := i.getClient()
+	client, err := i.GetClient()
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (i *Instance) CreatePlugin(plugin *kong.Plugin) (*kong.Plugin, error) {
 }
 
 func (i *Instance) UpdatePlugin(plugin *kong.Plugin) (*kong.Plugin, error) {
-	client, err := i.getClient()
+	client, err := i.GetClient()
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func (i *Instance) UpdatePlugin(plugin *kong.Plugin) (*kong.Plugin, error) {
 }
 
 func (i *Instance) DeletePlugin(nameOrID *string) error {
-	client, err := i.getClient()
+	client, err := i.GetClient()
 	if err != nil {
 		return err
 	}
@@ -128,7 +128,7 @@ func (i *Instance) DeletePlugin(nameOrID *string) error {
 }
 
 func (i *Instance) GetServices() ([]*kong.Service, error) {
-	client, err := i.getClient()
+	client, err := i.GetClient()
 	if err != nil {
 		return nil, err
 	}
