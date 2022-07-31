@@ -9,6 +9,7 @@ import (
 	"github.com/kong/go-kong/kong"
 	"github.com/mitchellh/mapstructure"
 	"github.com/steadybit/attack-kit/go/attack_kit_api"
+	"github.com/steadybit/extension-kong/config"
 	"github.com/steadybit/extension-kong/utils"
 	"net/http"
 )
@@ -89,9 +90,9 @@ func prepareRequestTermination(w http.ResponseWriter, _ *http.Request, body []by
 		return
 	}
 
-	instance, err := FindInstanceByName(*instanceName)
+	instance, err := config.FindInstanceByName(*instanceName)
 	if err != nil {
-		writeError(w, fmt.Sprintf("Failed to find a configured instance named '%s'", instanceName), err)
+		writeError(w, fmt.Sprintf("Failed to find a configured instance named '%s'", *instanceName), err)
 		return
 	}
 
@@ -179,7 +180,7 @@ func startRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte
 		return
 	}
 
-	instance, err := FindInstanceByName(state.InstanceName)
+	instance, err := config.FindInstanceByName(state.InstanceName)
 	if err != nil {
 		writeError(w, fmt.Sprintf("Failed to find a configured instance named '%s'", state.InstanceName), err)
 		return
@@ -228,7 +229,7 @@ func stopRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte)
 		return
 	}
 
-	instance, err := FindInstanceByName(state.InstanceName)
+	instance, err := config.FindInstanceByName(state.InstanceName)
 	if err != nil {
 		writeError(w, fmt.Sprintf("Failed to find a configured instance named '%s'", state.InstanceName), err)
 		return

@@ -6,32 +6,38 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/steadybit/attack-kit/go/attack_kit_api"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
+	"github.com/steadybit/extension-kong/config"
+	"github.com/steadybit/extension-kong/services"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"runtime/debug"
 )
 
 func main() {
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+
 	http.Handle("/", panicRecovery(logRequest(rootHandler)))
 	http.Handle("/attacks/request-termination", panicRecovery(logRequest(describeRequestTermination)))
 	http.Handle("/attacks/request-termination/prepare", panicRecovery(logRequest(prepareRequestTermination)))
 	http.Handle("/attacks/request-termination/start", panicRecovery(logRequest(startRequestTermination)))
 	http.Handle("/attacks/request-termination/stop", panicRecovery(logRequest(stopRequestTermination)))
-	http.Handle("/discoveries/services", panicRecovery(logRequest(describeServices)))
-	http.Handle("/discoveries/services/type", panicRecovery(logRequest(describeServiceType)))
-	http.Handle("/discoveries/services/type/attributes", panicRecovery(logRequest(describeKongTypeAttributes)))
-	http.Handle("/discoveries/services/discover", panicRecovery(logRequest(discoverServices)))
+
+	services.RegisterServiceDiscoveryHandlers()
 
 	port := 8084
-	InfoLogger.Printf("Starting kong extension server on port %d. Get started via /\n", port)
-	InfoLogger.Printf("Starting with configuration:\n")
-	for _, instance := range Instances {
-		if instance.isAuthenticated() {
-			InfoLogger.Printf("  %s: %s (authenticated with %s header)", instance.Name, instance.BaseUrl, instance.HeaderKey)
+	log.Info().Msgf("Starting Kong extension server on port %d. Get started via /\n", port)
+	log.Info().Msgf("Starting with configuration:\n")
+	for _, instance := range config.Instances {
+		if instance.IsAuthenticated() {
+			log.Info().Msgf("  %s: %s (authenticated with %s header)", instance.Name, instance.BaseUrl, instance.HeaderKey)
 		} else {
-			InfoLogger.Printf("  %s: %s", instance.Name, instance.BaseUrl)
+			log.Info().Msgf("  %s: %s", instance.Name, instance.BaseUrl)
 		}
 	}
 	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
@@ -60,19 +66,19 @@ func rootHandler(w http.ResponseWriter, request *http.Request, _ []byte) {
 		Discoveries: []discovery_kit_api.DescribingEndpointReference{
 			{
 				"GET",
-				"/discoveries/services",
+				"/service/discovery",
 			},
 		},
 		TargetTypes: []discovery_kit_api.DescribingEndpointReference{
 			{
 				"GET",
-				"/discoveries/services/type",
+				"/service/discovery/target-description",
 			},
 		},
 		TargetAttributes: []discovery_kit_api.DescribingEndpointReference{
 			{
 				"GET",
-				"/discoveries/services/type/attributes",
+				"/service/discovery/attribute-descriptions",
 			},
 		},
 	})
@@ -82,7 +88,7 @@ func panicRecovery(next func(w http.ResponseWriter, r *http.Request)) http.Handl
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				ErrorLogger.Printf("Panic: %v\n %s", err, string(debug.Stack()))
+				log.Error().Msgf("Panic: %v\n %s", err, string(debug.Stack()))
 				writeError(w, "Internal Server Error", nil)
 			}
 		}()
@@ -99,9 +105,9 @@ func logRequest(next func(w http.ResponseWriter, r *http.Request, body []byte)) 
 		}
 
 		if len(body) > 0 {
-			InfoLogger.Printf("%s %s with body %s", r.Method, r.URL, body)
+			log.Info().Msgf("%s %s with body %s", r.Method, r.URL, body)
 		} else {
-			InfoLogger.Printf("%s %s", r.Method, r.URL)
+			log.Info().Msgf("%s %s", r.Method, r.URL)
 		}
 
 		next(w, r, body)
