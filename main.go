@@ -23,12 +23,9 @@ func main() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 
 	http.Handle("/", panicRecovery(logRequest(rootHandler)))
-	http.Handle("/attacks/request-termination", panicRecovery(logRequest(describeRequestTermination)))
-	http.Handle("/attacks/request-termination/prepare", panicRecovery(logRequest(prepareRequestTermination)))
-	http.Handle("/attacks/request-termination/start", panicRecovery(logRequest(startRequestTermination)))
-	http.Handle("/attacks/request-termination/stop", panicRecovery(logRequest(stopRequestTermination)))
 
 	services.RegisterServiceDiscoveryHandlers()
+	services.RegisterServiceAttackHandlers()
 
 	port := 8084
 	log.Info().Msgf("Starting Kong extension server on port %d. Get started via /\n", port)
@@ -60,7 +57,7 @@ func rootHandler(w http.ResponseWriter, request *http.Request, _ []byte) {
 		Attacks: []attack_kit_api.DescribingEndpointReference{
 			{
 				"GET",
-				"/attacks/request-termination",
+				"/service/attack/request-termination",
 			},
 		},
 		Discoveries: []discovery_kit_api.DescribingEndpointReference{
