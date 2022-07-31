@@ -93,7 +93,7 @@ func WriteBody(w http.ResponseWriter, response any) {
 }
 
 func WriteAttackState[T any](w http.ResponseWriter, state T) {
-	err, encodedState := EncodeAttackState(state)
+	encodedState, err := EncodeAttackState(state)
 	if err != nil {
 		WriteError(w, ToError("Failed to encode attack state", err))
 	} else {
@@ -103,10 +103,10 @@ func WriteAttackState[T any](w http.ResponseWriter, state T) {
 	}
 }
 
-func EncodeAttackState[T any](attackState T) (error, attack_kit_api.AttackState) {
+func EncodeAttackState[T any](attackState T) (attack_kit_api.AttackState, error) {
 	var result attack_kit_api.AttackState
 	err := mapstructure.Decode(attackState, &result)
-	return err, result
+	return result, err
 }
 
 func DecodeAttackState[T any](attackState attack_kit_api.AttackState, result *T) error {
