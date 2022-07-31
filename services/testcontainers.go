@@ -20,7 +20,7 @@ type TestContainers struct {
 	Instance          *config.Instance
 }
 
-func (tcs *TestContainers) Terminate(t *testing.T, ctx context.Context) {
+func (tcs *TestContainers) Terminate(_ *testing.T, ctx context.Context) {
 	kongContainer := *tcs.KongContainer
 	defer kongContainer.Terminate(ctx)
 
