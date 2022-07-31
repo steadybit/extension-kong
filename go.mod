@@ -19,6 +19,7 @@ require (
 
 replace (
 	github.com/containerd/containerd v1.5.9 => github.com/containerd/containerd v1.6.6
+	github.com/docker/distribution v2.7.1+incompatible => github.com/distribution/distribution v2.8.1+incompatible
 	github.com/opencontainers/runc v1.0.2 => github.com/opencontainers/runc v1.1.3
 )
 
