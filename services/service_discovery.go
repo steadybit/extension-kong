@@ -1,23 +1,45 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: 2022 Steadybit GmbH
 
-package main
+package services
 
 import (
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
+	"github.com/steadybit/extension-kong/config"
+	"github.com/steadybit/extension-kong/utils"
 	"net/http"
 	"strconv"
 	"strings"
 )
 
-func describeServiceType(w http.ResponseWriter, _ *http.Request, _ []byte) {
-	writeBody(w, discovery_kit_api.TargetDescription{
-		Id:       "com.github.steadybit.extension_kong.service",
+func RegisterServiceDiscoveryHandlers() {
+	utils.RegisterHttpHandler("/service/discovery", utils.GetterAsHandler(getServiceDiscoveryDescription))
+	utils.RegisterHttpHandler("/service/discovery/target-description", utils.GetterAsHandler(getServiceTargetDescription))
+	utils.RegisterHttpHandler("/service/discovery/attribute-descriptions", utils.GetterAsHandler(getServiceAttributeDescriptions))
+	utils.RegisterHttpHandler("/service/discovery/discovered-services", getServiceDiscoveryResults)
+}
+
+func getServiceDiscoveryDescription() discovery_kit_api.DiscoveryDescription {
+	return discovery_kit_api.DiscoveryDescription{
+		Id:         serviceTargetId,
+		RestrictTo: discovery_kit_api.Ptr(discovery_kit_api.LEADER),
+		Discover: discovery_kit_api.DescribingEndpointReferenceWithCallInterval{
+			Method:       "GET",
+			Path:         "/service/discovery/discovered-services",
+			CallInterval: discovery_kit_api.Ptr("30s"),
+		},
+	}
+}
+
+func getServiceTargetDescription() discovery_kit_api.TargetDescription {
+	return discovery_kit_api.TargetDescription{
+		Id:       serviceTargetId,
 		Label:    discovery_kit_api.PluralLabel{One: "Kong service", Other: "Kong services"},
 		Category: discovery_kit_api.Ptr("API gateway"),
 		Version:  "1.1.1",
-		Icon:     discovery_kit_api.Ptr("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cpath d='M20.986 50.552h11.662l6.055 7.54-1.04 2.568H22.596l.37-2.568-3.552-5.548zm8.238-33.765 6.33-.01L64 50.428l-2.2 10.23H49.61l.76-2.883-26.58-31.452zM40.518 3.34 53.68 13.758l-1.685 1.75 2.282 3.2v3.422l-6.563 5.386L36.68 14.39h-6.426l2.587-4.774zm-27.46 32.852 9.256-7.935L34.6 42.84l-3.5 5.342H19.782l-7.837 10.144-1.8 2.333H0V48.213l9.465-12.02z' fill='%23003459' fill-rule='evenodd'/%3E%3C/svg%3E"),
+		Icon:     discovery_kit_api.Ptr(serviceIcon),
 		Table: discovery_kit_api.Table{
 			Columns: []discovery_kit_api.Column{
 				{Attribute: "kong.service.name"},
@@ -33,11 +55,11 @@ func describeServiceType(w http.ResponseWriter, _ *http.Request, _ []byte) {
 				},
 			},
 		},
-	})
+	}
 }
 
-func describeKongTypeAttributes(w http.ResponseWriter, _ *http.Request, _ []byte) {
-	writeBody(w, discovery_kit_api.AttributeDescriptions{
+func getServiceAttributeDescriptions() discovery_kit_api.AttributeDescriptions {
+	return discovery_kit_api.AttributeDescriptions{
 		Attributes: []discovery_kit_api.AttributeDescription{
 			{
 				Attribute: "kong.instance.name",
@@ -78,33 +100,21 @@ func describeKongTypeAttributes(w http.ResponseWriter, _ *http.Request, _ []byte
 				},
 			},
 		},
-	})
-}
-
-func describeServices(w http.ResponseWriter, _ *http.Request, _ []byte) {
-	writeBody(w, discovery_kit_api.DiscoveryDescription{
-		Id:         "com.github.steadybit.extension_kong.service",
-		RestrictTo: discovery_kit_api.Ptr(discovery_kit_api.LEADER),
-		Discover: discovery_kit_api.DescribingEndpointReferenceWithCallInterval{
-			Method:       "GET",
-			Path:         "/discoveries/services/discover",
-			CallInterval: discovery_kit_api.Ptr("30s"),
-		},
-	})
-}
-
-func discoverServices(w http.ResponseWriter, _ *http.Request, _ []byte) {
-	var targets = []discovery_kit_api.Target{}
-	for _, instance := range Instances {
-		targets = append(targets, getServiceTargets(&instance)...)
 	}
-	writeBody(w, discovery_kit_api.DiscoveredTargets{Targets: targets})
 }
 
-func getServiceTargets(instance *Instance) []discovery_kit_api.Target {
+func getServiceDiscoveryResults(w http.ResponseWriter, _ *http.Request, _ []byte) {
+	var targets = make([]discovery_kit_api.Target, 0, 100)
+	for _, instance := range config.Instances {
+		targets = append(targets, GetServiceTargets(&instance)...)
+	}
+	utils.WriteBody(w, discovery_kit_api.DiscoveredTargets{Targets: targets})
+}
+
+func GetServiceTargets(instance *config.Instance) []discovery_kit_api.Target {
 	services, err := instance.GetServices()
 	if err != nil {
-		ErrorLogger.Printf("Failed to get services from Kong instance %s (%s): %s", instance.Name, instance.BaseUrl, err)
+		log.Err(err).Msgf("Failed to get services from Kong instance %s (%s)", instance.Name, instance.BaseUrl)
 		return []discovery_kit_api.Target{}
 	}
 

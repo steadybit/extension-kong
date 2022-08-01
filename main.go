@@ -4,37 +4,39 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/steadybit/attack-kit/go/attack_kit_api"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
-	"io/ioutil"
+	"github.com/steadybit/extension-kong/config"
+	"github.com/steadybit/extension-kong/services"
+	"github.com/steadybit/extension-kong/utils"
 	"net/http"
-	"runtime/debug"
+	"os"
 )
 
 func main() {
-	http.Handle("/", panicRecovery(logRequest(rootHandler)))
-	http.Handle("/attacks/request-termination", panicRecovery(logRequest(describeRequestTermination)))
-	http.Handle("/attacks/request-termination/prepare", panicRecovery(logRequest(prepareRequestTermination)))
-	http.Handle("/attacks/request-termination/start", panicRecovery(logRequest(startRequestTermination)))
-	http.Handle("/attacks/request-termination/stop", panicRecovery(logRequest(stopRequestTermination)))
-	http.Handle("/discoveries/services", panicRecovery(logRequest(describeServices)))
-	http.Handle("/discoveries/services/type", panicRecovery(logRequest(describeServiceType)))
-	http.Handle("/discoveries/services/type/attributes", panicRecovery(logRequest(describeKongTypeAttributes)))
-	http.Handle("/discoveries/services/discover", panicRecovery(logRequest(discoverServices)))
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+
+	utils.RegisterHttpHandler("/", utils.GetterAsHandler(getExtensionDescription))
+
+	services.RegisterServiceDiscoveryHandlers()
+	services.RegisterServiceAttackHandlers()
 
 	port := 8084
-	InfoLogger.Printf("Starting kong extension server on port %d. Get started via /\n", port)
-	InfoLogger.Printf("Starting with configuration:\n")
-	for _, instance := range Instances {
-		if instance.isAuthenticated() {
-			InfoLogger.Printf("  %s: %s (authenticated with %s header)", instance.Name, instance.BaseUrl, instance.HeaderKey)
+	log.Info().Msgf("Starting Kong extension server on port %d. Get started via /", port)
+	log.Info().Msgf("Starting with configuration:")
+	for _, instance := range config.Instances {
+		if instance.IsAuthenticated() {
+			log.Info().Msgf("  %s: %s (authenticated with %s header)", instance.Name, instance.BaseUrl, instance.HeaderKey)
 		} else {
-			InfoLogger.Printf("  %s: %s", instance.Name, instance.BaseUrl)
+			log.Info().Msgf("  %s: %s", instance.Name, instance.BaseUrl)
 		}
 	}
-	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	log.Fatal().Err(err).Msgf("Failed to start HTTP server")
 }
 
 type ExtensionListResponse struct {
@@ -44,84 +46,31 @@ type ExtensionListResponse struct {
 	Attacks          []attack_kit_api.DescribingEndpointReference    `json:"attacks"`
 }
 
-func rootHandler(w http.ResponseWriter, request *http.Request, _ []byte) {
-	if request.URL.Path != "/" {
-		w.WriteHeader(404)
-		return
-	}
-
-	writeBody(w, ExtensionListResponse{
+func getExtensionDescription() ExtensionListResponse {
+	return ExtensionListResponse{
 		Attacks: []attack_kit_api.DescribingEndpointReference{
 			{
 				"GET",
-				"/attacks/request-termination",
+				"/service/attack/request-termination",
 			},
 		},
 		Discoveries: []discovery_kit_api.DescribingEndpointReference{
 			{
 				"GET",
-				"/discoveries/services",
+				"/service/discovery",
 			},
 		},
 		TargetTypes: []discovery_kit_api.DescribingEndpointReference{
 			{
 				"GET",
-				"/discoveries/services/type",
+				"/service/discovery/target-description",
 			},
 		},
 		TargetAttributes: []discovery_kit_api.DescribingEndpointReference{
 			{
 				"GET",
-				"/discoveries/services/type/attributes",
+				"/service/discovery/attribute-descriptions",
 			},
 		},
-	})
-}
-
-func panicRecovery(next func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		defer func() {
-			if err := recover(); err != nil {
-				ErrorLogger.Printf("Panic: %v\n %s", err, string(debug.Stack()))
-				writeError(w, "Internal Server Error", nil)
-			}
-		}()
-		next(w, r)
 	}
-}
-
-func logRequest(next func(w http.ResponseWriter, r *http.Request, body []byte)) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		body, bodyReadErr := ioutil.ReadAll(r.Body)
-		if bodyReadErr != nil {
-			http.Error(w, bodyReadErr.Error(), http.StatusBadRequest)
-			return
-		}
-
-		if len(body) > 0 {
-			InfoLogger.Printf("%s %s with body %s", r.Method, r.URL, body)
-		} else {
-			InfoLogger.Printf("%s %s", r.Method, r.URL)
-		}
-
-		next(w, r, body)
-	}
-}
-
-func writeError(w http.ResponseWriter, title string, err error) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(500)
-	var response discovery_kit_api.DiscoveryKitError
-	if err != nil {
-		response = discovery_kit_api.DiscoveryKitError{Title: title, Detail: discovery_kit_api.Ptr(err.Error())}
-	} else {
-		response = discovery_kit_api.DiscoveryKitError{Title: title}
-	}
-	json.NewEncoder(w).Encode(response)
-}
-
-func writeBody(w http.ResponseWriter, response any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-	json.NewEncoder(w).Encode(response)
 }
