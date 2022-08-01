@@ -152,8 +152,7 @@ func PrepareRequestTermination(body []byte) (*RequestTerminationState, *attack_k
 	}
 
 	if request.Config["message"] != nil && request.Config["body"] != nil {
-		writeError(w, "You can't have a message and a body, please choose your return", err)
-		return
+		return nil, attack_kit_api.Ptr(utils.ToError("You can't have a message and a body, please choose your return", nil))
 	}
 
 	plugin, err := instance.CreatePlugin(&kong.Plugin{
