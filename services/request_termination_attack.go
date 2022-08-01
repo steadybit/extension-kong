@@ -56,18 +56,18 @@ func getServiceRequestTerminationAttackDescription() attack_kit_api.AttackDescri
 				DefaultValue: attack_kit_api.Ptr("Error injected through the Steadybit Kong extension (through the request-termination Kong plugin)"),
 			},
 			{
-				Label:        "Content-Type",
-				Name:         "content_type",
-				Type:         "string",
-				Advanced:     attack_kit_api.Ptr(true),
-				DefaultValue: attack_kit_api.Ptr("Content type of the raw response configured with Body."),
+				Label:       "Content-Type",
+				Name:        "contentType",
+				Description: attack_kit_api.Ptr("Content-Type response header to be returned for terminated requests."),
+				Type:        "string",
+				Advanced:    attack_kit_api.Ptr(true),
 			},
 			{
-				Label:        "Body",
-				Name:         "body",
-				Type:         "string",
-				Advanced:     attack_kit_api.Ptr(true),
-				DefaultValue: attack_kit_api.Ptr("The raw response body to send. This is mutually exclusive with the config.message field"),
+				Label:       "Body",
+				Name:        "body",
+				Description: attack_kit_api.Ptr("The raw response body to be returned for terminated requests. This is mutually exclusive with the message parameter. A body parameter takes precedence over the message parameter."),
+				Type:        "string",
+				Advanced:    attack_kit_api.Ptr(true),
 			},
 			{
 				Label:        "HTTP status code",
@@ -151,8 +151,22 @@ func PrepareRequestTermination(body []byte) (*RequestTerminationState, *attack_k
 		}
 	}
 
-	if request.Config["message"] != nil && request.Config["body"] != nil {
-		return nil, attack_kit_api.Ptr(utils.ToError("You can't have a message and a body, please choose your return", nil))
+	config := kong.Configuration{
+		"status_code": request.Config["status"].(float64),
+	}
+
+	if isDefinedString(request.Config["body"]) {
+		config["body"] = request.Config["body"]
+	} else if isDefinedString(request.Config["message"]) {
+		config["message"] = request.Config["message"]
+	}
+
+	if isDefinedString(request.Config["contentType"]) {
+		config["content_type"] = request.Config["contentType"]
+	}
+
+	if isDefinedString(request.Config["trigger"]) {
+		config["trigger"] = request.Config["trigger"]
 	}
 
 	plugin, err := instance.CreatePlugin(&kong.Plugin{
@@ -163,13 +177,7 @@ func PrepareRequestTermination(body []byte) (*RequestTerminationState, *attack_k
 		}),
 		Service:  service,
 		Consumer: consumer,
-		Config: kong.Configuration{
-			"status_code":  request.Config["status"].(float64),
-			"message":      request.Config["message"].(string),
-			"content_type": request.Config["content_type"].(string),
-			"body":         request.Config["body"].(string),
-			"trigger":      request.Config["trigger"].(string),
-		},
+		Config:   config,
 	})
 	if err != nil {
 		return nil, attack_kit_api.Ptr(utils.ToError("Failed to create plugin", err))
@@ -179,6 +187,10 @@ func PrepareRequestTermination(body []byte) (*RequestTerminationState, *attack_k
 		InstanceName: instance.Name,
 		PluginIds:    []string{*plugin.ID},
 	}), nil
+}
+
+func isDefinedString(v interface{}) bool {
+	return v != nil && len(v.(string)) > 0
 }
 
 func decodeAttackState(attackState attack_kit_api.AttackState) (error, RequestTerminationState) {

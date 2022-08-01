@@ -153,6 +153,9 @@ func testPrepareConfiguresDisabledPlugin(t *testing.T, instance *config.Instance
 	assert.Equal(t, *service.ID, *plugin.Service.ID)
 	assert.Nil(t, plugin.Consumer)
 	assert.Equal(t, 200.0, plugin.Config["status_code"])
+	assert.Nil(t, plugin.Config["trigger"])
+	assert.Nil(t, plugin.Config["body"])
+	assert.Nil(t, plugin.Config["content_type"])
 	assert.Equal(t, "Hello from Kong extension", plugin.Config["message"])
 }
 
@@ -189,9 +192,12 @@ func testPrepareWithConsumer(t *testing.T, instance *config.Instance) {
 	consumer := configureConsumer(t, instance, getTestConsumer())
 	requestBody := attack_kit_api.PrepareAttackRequestBody{
 		Config: map[string]interface{}{
-			"status":   200,
-			"message":  "Hello from Kong extension",
-			"consumer": *consumer.Username,
+			"status":      200,
+			"message":     "Hello from Kong extension",
+			"consumer":    *consumer.Username,
+			"body":        "some body",
+			"contentType": "text/foobar",
+			"trigger":     "banana",
 		},
 		Target: attack_kit_api.Target{
 			Attributes: map[string][]string{
@@ -215,6 +221,10 @@ func testPrepareWithConsumer(t *testing.T, instance *config.Instance) {
 	plugin, err := client.Plugins.Get(context.Background(), &state.PluginIds[0])
 	require.NoError(t, err)
 	assert.Equal(t, *consumer.ID, *plugin.Consumer.ID)
+	assert.Equal(t, "banana", plugin.Config["trigger"])
+	assert.Equal(t, "some body", plugin.Config["body"])
+	assert.Nil(t, plugin.Config["message"])
+	assert.Equal(t, "text/foobar", plugin.Config["content_type"])
 }
 
 func testStartEnablesPlugin(t *testing.T, instance *config.Instance) {
