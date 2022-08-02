@@ -26,7 +26,7 @@ func getServiceRequestTerminationAttackDescription() attack_kit_api.AttackDescri
 		Id:          "com.github.steadybit.extension_kong.request_termination",
 		Label:       "Terminate requests",
 		Description: "Leverage the Kong request-termination plugin to inject HTTP failures.",
-		Version:     "1.1.0",
+		Version:     "1.1.1",
 		Icon:        attack_kit_api.Ptr(serviceIcon),
 		TargetType:  serviceTargetId,
 		Category:    "network",
