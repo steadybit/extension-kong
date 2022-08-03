@@ -26,7 +26,7 @@ func main() {
 	services.RegisterServiceAttackHandlers()
 
 	port := 8084
-	log.Info().Msgf("Starting Kong extension server on port %d. Get started via /", port)
+	log.Info().Msgf("Starting Test extension server on port %d. Get started via /", port)
 	log.Info().Msgf("Starting with configuration:")
 	for _, instance := range config.Instances {
 		if instance.IsAuthenticated() {
