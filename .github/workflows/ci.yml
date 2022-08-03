@@ -39,6 +39,8 @@ jobs:
 
       - name: Test Permission Behavior
         run: env
+        env:
+          username: ${{ secrets.DOCKER_USERNAME }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
