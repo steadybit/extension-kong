@@ -1,4 +1,4 @@
-<img src="./Kong_2x.png" width="300" align="right" alt="Kong logo">
+<img src="./logo.png" height="130" align="right" alt="Kong logo">
 
 # Steadybit extension-kong
 
