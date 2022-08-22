@@ -102,6 +102,7 @@ func getServiceRequestTerminationAttackDescription() attack_kit_api.AttackDescri
 type RequestTerminationState struct {
 	PluginIds    []string
 	InstanceName string
+	ServiceId    string
 }
 
 func prepareRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte) {
@@ -185,6 +186,7 @@ func PrepareRequestTermination(body []byte) (*RequestTerminationState, *attack_k
 
 	return attack_kit_api.Ptr(RequestTerminationState{
 		InstanceName: instance.Name,
+		ServiceId:    *service.ID,
 		PluginIds:    []string{*plugin.ID},
 	}), nil
 }
@@ -227,7 +229,7 @@ func StartRequestTermination(body []byte) (*RequestTerminationState, *attack_kit
 	}
 
 	for _, pluginId := range state.PluginIds {
-		_, err := instance.UpdatePlugin(&kong.Plugin{
+		_, err := instance.UpdatePlugin(&state.ServiceId, &kong.Plugin{
 			ID:      &pluginId,
 			Enabled: utils.Bool(true),
 		})
@@ -264,7 +266,7 @@ func StopRequestTermination(body []byte) *attack_kit_api.AttackKitError {
 	}
 
 	for _, pluginId := range state.PluginIds {
-		err := instance.DeletePlugin(&pluginId)
+		err := instance.DeletePlugin(&state.ServiceId, &pluginId)
 		if err != nil {
 			return attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to delete plugin within Kong for plugin ID '%s'", pluginId), err))
 		}
