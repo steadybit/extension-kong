@@ -104,27 +104,27 @@ func (i *Instance) CreatePlugin(plugin *kong.Plugin) (*kong.Plugin, error) {
 	}
 
 	ctx := context.Background()
-	return client.Plugins.Create(ctx, plugin)
+	return client.Plugins.CreateForService(ctx, plugin.Service.ID, plugin)
 }
 
-func (i *Instance) UpdatePlugin(plugin *kong.Plugin) (*kong.Plugin, error) {
+func (i *Instance) UpdatePlugin(serviceId *string, plugin *kong.Plugin) (*kong.Plugin, error) {
 	client, err := i.GetClient()
 	if err != nil {
 		return nil, err
 	}
 
 	ctx := context.Background()
-	return client.Plugins.Update(ctx, plugin)
+	return client.Plugins.UpdateForService(ctx, serviceId, plugin)
 }
 
-func (i *Instance) DeletePlugin(nameOrID *string) error {
+func (i *Instance) DeletePlugin(serviceId *string, nameOrID *string) error {
 	client, err := i.GetClient()
 	if err != nil {
 		return err
 	}
 
 	ctx := context.Background()
-	return client.Plugins.Delete(ctx, nameOrID)
+	return client.Plugins.DeleteForService(ctx, serviceId, nameOrID)
 }
 
 func (i *Instance) GetServices() ([]*kong.Service, error) {
