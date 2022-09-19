@@ -5,28 +5,19 @@ package main
 
 import (
 	"fmt"
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/steadybit/attack-kit/go/attack_kit_api"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
+	"github.com/steadybit/extension-kit/extlogging"
 	"github.com/steadybit/extension-kong/config"
 	"github.com/steadybit/extension-kong/services"
 	"github.com/steadybit/extension-kong/utils"
 	"net/http"
-	"os"
-	"strings"
 )
 
 func main() {
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-	//Define Log Level
-	desiredLogLevel, _ := zerolog.ParseLevel(strings.ToLower(os.Getenv("STEADYBIT_LOG_LEVEL")))
-	if desiredLogLevel == zerolog.NoLevel {
-		desiredLogLevel = zerolog.InfoLevel
-	}
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-	log.WithLevel(desiredLogLevel)
-	log.Info().Msgf("Logger configured at %s level", zerolog.Level.String(desiredLogLevel))
+	extlogging.InitZeroLog()
+
 	utils.RegisterHttpHandler("/", utils.GetterAsHandler(getExtensionDescription))
 
 	services.RegisterServiceDiscoveryHandlers()

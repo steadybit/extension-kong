@@ -34,7 +34,7 @@ spec:
             - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
               value: "http://kong:8001"
             - name: STEADYBIT_LOG_LEVEL
-              value: "ERROR"
+              value: "INFO"
       serviceAccountName: steadybit-extension-kong
 ---
 apiVersion: v1

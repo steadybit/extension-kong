@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3.0
+
+ - The log level can now be configured through the `STEADYBIT_LOG_LEVEL` environment variable. Contributed by @achoimet.
+
 ## v1.2.0
 
  - Update `go-kong` and use the new APIs so that plugin creation, updates and deletions happen using Kong API paths that are specific to services, i.e., located under `/services`.
