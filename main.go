@@ -14,12 +14,19 @@ import (
 	"github.com/steadybit/extension-kong/utils"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	//Define Log Level
+	desiredLogLevel, _ := zerolog.ParseLevel(strings.ToLower(os.Getenv("STEADYBIT_LOG_LEVEL")))
+	if desiredLogLevel == zerolog.NoLevel {
+		desiredLogLevel = zerolog.InfoLevel
+	}
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-
+	log.WithLevel(desiredLogLevel)
+	log.Info().Msgf("Logger configured at %s level", zerolog.Level.String(desiredLogLevel))
 	utils.RegisterHttpHandler("/", utils.GetterAsHandler(getExtensionDescription))
 
 	services.RegisterServiceDiscoveryHandlers()
