@@ -9,4 +9,4 @@ jobs:
   call-workflow:
     uses: steadybit/.github/.github/workflows/cla.yml@main
     secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN_USED_BY_CLA_FROM_ANSGAR }}
