@@ -57,4 +57,3 @@ If contributing on behalf of your company, your company must sign a [Corporate C
 
 If for any reason, your first contribution is in a PR created by other contributor, please just add a comment to the PR
 with the following text to agree our CLA: "I have read the CLA Document and I hereby sign the CLA".
-
