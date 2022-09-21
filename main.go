@@ -24,13 +24,13 @@ func main() {
 	services.RegisterServiceAttackHandlers()
 
 	port := 8084
-	log.Info().Msgf("Starting Kong extension server on port %d. Get started via /", port)
-	log.Info().Msgf("Starting with configuration:")
+	log.Log().Msgf("Starting Kong extension server on port %d. Get started via /", port)
+	log.Log().Msgf("Starting with configuration:")
 	for _, instance := range config.Instances {
 		if instance.IsAuthenticated() {
-			log.Info().Msgf("  %s: %s (authenticated with %s header)", instance.Name, instance.BaseUrl, instance.HeaderKey)
+			log.Log().Msgf("  %s: %s (authenticated with %s header)", instance.Name, instance.BaseUrl, instance.HeaderKey)
 		} else {
-			log.Info().Msgf("  %s: %s", instance.Name, instance.BaseUrl)
+			log.Log().Msgf("  %s: %s", instance.Name, instance.BaseUrl)
 		}
 	}
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
