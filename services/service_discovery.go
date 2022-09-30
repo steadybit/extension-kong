@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
+	"github.com/steadybit/extension-kong/common"
 	"github.com/steadybit/extension-kong/config"
 	"github.com/steadybit/extension-kong/utils"
 	"net/http"
@@ -14,20 +15,22 @@ import (
 	"strings"
 )
 
+const ServiceDiscoveryEndpoint = "/kong/service/discovery"
+
 func RegisterServiceDiscoveryHandlers() {
-	utils.RegisterHttpHandler("/service/discovery", utils.GetterAsHandler(getServiceDiscoveryDescription))
-	utils.RegisterHttpHandler("/service/discovery/target-description", utils.GetterAsHandler(getServiceTargetDescription))
-	utils.RegisterHttpHandler("/service/discovery/attribute-descriptions", utils.GetterAsHandler(getServiceAttributeDescriptions))
-	utils.RegisterHttpHandler("/service/discovery/discovered-services", getServiceDiscoveryResults)
+	utils.RegisterHttpHandler(ServiceDiscoveryEndpoint, utils.GetterAsHandler(getServiceDiscoveryDescription))
+	utils.RegisterHttpHandler(ServiceDiscoveryEndpoint+"/target-description", utils.GetterAsHandler(getServiceTargetDescription))
+	utils.RegisterHttpHandler(ServiceDiscoveryEndpoint+"/attribute-descriptions", utils.GetterAsHandler(getServiceAttributeDescriptions))
+	utils.RegisterHttpHandler(ServiceDiscoveryEndpoint+"/discovered-services", getServiceDiscoveryResults)
 }
 
 func getServiceDiscoveryDescription() discovery_kit_api.DiscoveryDescription {
 	return discovery_kit_api.DiscoveryDescription{
-		Id:         serviceTargetId,
+		Id:         common.ServiceTargetId,
 		RestrictTo: discovery_kit_api.Ptr(discovery_kit_api.LEADER),
 		Discover: discovery_kit_api.DescribingEndpointReferenceWithCallInterval{
 			Method:       "GET",
-			Path:         "/service/discovery/discovered-services",
+			Path:         ServiceDiscoveryEndpoint + "/discovered-services",
 			CallInterval: discovery_kit_api.Ptr("30s"),
 		},
 	}
@@ -35,11 +38,11 @@ func getServiceDiscoveryDescription() discovery_kit_api.DiscoveryDescription {
 
 func getServiceTargetDescription() discovery_kit_api.TargetDescription {
 	return discovery_kit_api.TargetDescription{
-		Id:       serviceTargetId,
+		Id:       common.ServiceTargetId,
 		Label:    discovery_kit_api.PluralLabel{One: "Kong service", Other: "Kong services"},
 		Category: discovery_kit_api.Ptr("API gateway"),
 		Version:  "1.1.1",
-		Icon:     discovery_kit_api.Ptr(serviceIcon),
+		Icon:     discovery_kit_api.Ptr(common.ServiceIcon),
 		Table: discovery_kit_api.Table{
 			Columns: []discovery_kit_api.Column{
 				{Attribute: "kong.service.name"},

@@ -87,6 +87,16 @@ func (i *Instance) FindService(nameOrId *string) (*kong.Service, error) {
 	return client.Services.Get(ctx, nameOrId)
 }
 
+func (i *Instance) FindRoute(nameOrId *string) (*kong.Route, error) {
+	client, err := i.GetClient()
+	if err != nil {
+		return nil, err
+	}
+
+	ctx := context.Background()
+	return client.Routes.Get(ctx, nameOrId)
+}
+
 func (i *Instance) FindConsumer(nameOrId *string) (*kong.Consumer, error) {
 	client, err := i.GetClient()
 	if err != nil {
@@ -104,6 +114,9 @@ func (i *Instance) CreatePlugin(plugin *kong.Plugin) (*kong.Plugin, error) {
 	}
 
 	ctx := context.Background()
+	if plugin.Route != nil {
+		return client.Plugins.CreateForRoute(ctx, plugin.Route.ID, plugin)
+	}
 	return client.Plugins.CreateForService(ctx, plugin.Service.ID, plugin)
 }
 
@@ -135,4 +148,14 @@ func (i *Instance) GetServices() ([]*kong.Service, error) {
 
 	ctx := context.Background()
 	return client.Services.ListAll(ctx)
+}
+
+func (i *Instance) GetRoutes() ([]*kong.Route, error) {
+	client, err := i.GetClient()
+	if err != nil {
+		return nil, err
+	}
+
+	ctx := context.Background()
+	return client.Routes.ListAll(ctx)
 }

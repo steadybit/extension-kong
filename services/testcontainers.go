@@ -58,6 +58,14 @@ func cleanupKong(t *testing.T, instance *config.Instance) {
 	client, err := instance.GetClient()
 	require.NoError(t, err)
 
+	// delete all routes
+	routes, err := client.Routes.ListAll(context.Background())
+	require.NoError(t, err)
+	for _, route := range routes {
+		err = client.Routes.Delete(context.Background(), route.ID)
+		require.NoError(t, err)
+	}
+
 	// delete all services
 	services, err := client.Services.ListAll(context.Background())
 	require.NoError(t, err)
