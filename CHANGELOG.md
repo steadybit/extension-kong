@@ -1,8 +1,13 @@
 # Changelog
 
+## v1.4.0
+
+ - New discovery for Kong routes. Contributed by [@achoimet](https://github.com/achoimet).
+ - New request termination attack for Kong routes. Contributed by [@achoimet](https://github.com/achoimet).
+
 ## v1.3.0
 
- - The log level can now be configured through the `STEADYBIT_LOG_LEVEL` environment variable. Contributed by @achoimet.
+ - The log level can now be configured through the `STEADYBIT_LOG_LEVEL` environment variable. Contributed by [@achoimet](https://github.com/achoimet).
 
 ## v1.2.0
 
@@ -14,7 +19,7 @@
 
 ## v1.1.0
 
- - Ability to define response bodies, `Content-Type` and triggers. Contributed by @achoimet.
+ - Ability to define response bodies, `Content-Type` and triggers. Contributed by [@achoimet](https://github.com/achoimet).
 
 ## v1.0.0
 

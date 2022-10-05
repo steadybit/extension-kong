@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: 2022 Steadybit GmbH
 
-package common
+package kong
 
 const (
 	ServiceTargetId = "com.github.steadybit.extension_kong.service"

@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: 2022 Steadybit GmbH
 
-package services
+package kong
 
 import (
 	"context"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"github.com/steadybit/extension-kong/config"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
@@ -20,12 +21,16 @@ type TestContainers struct {
 	Instance          *config.Instance
 }
 
-func (tcs *TestContainers) Terminate(_ *testing.T, ctx context.Context) {
+func (tcs *TestContainers) Terminate(t *testing.T, ctx context.Context) {
+	log.Info().Msgf("Terminating Kong gateway container")
 	kongContainer := *tcs.KongContainer
-	defer kongContainer.Terminate(ctx)
+	err := kongContainer.Terminate(ctx)
+	require.NoError(t, err)
 
+	log.Info().Msgf("Terminating Postgres container")
 	postgresContainer := *tcs.PostgresContainer
-	defer postgresContainer.Terminate(ctx)
+	err = postgresContainer.Terminate(ctx)
+	require.NoError(t, err)
 }
 
 type WithTestContainersCase struct {

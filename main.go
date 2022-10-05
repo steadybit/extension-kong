@@ -10,9 +10,7 @@ import (
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
 	"github.com/steadybit/extension-kit/extlogging"
 	"github.com/steadybit/extension-kong/config"
-	"github.com/steadybit/extension-kong/routes"
-	"github.com/steadybit/extension-kong/services"
-	"github.com/steadybit/extension-kong/steadybit"
+	"github.com/steadybit/extension-kong/kong"
 	"github.com/steadybit/extension-kong/utils"
 	"net/http"
 )
@@ -22,10 +20,11 @@ func main() {
 
 	utils.RegisterHttpHandler("/", utils.GetterAsHandler(getExtensionDescription))
 
-	services.RegisterServiceDiscoveryHandlers()
-	routes.RegisterRouteDiscoveryHandlers()
-	steadybit.RegisterServiceAttackHandlers()
-	steadybit.RegisterRouteAttackHandlers()
+	kong.RegisterAttributeDescriptionHandlers()
+	kong.RegisterServiceDiscoveryHandlers()
+	kong.RegisterRouteDiscoveryHandlers()
+	kong.RegisterServiceAttackHandlers()
+	kong.RegisterRouteAttackHandlers()
 
 	port := 8084
 	log.Log().Msgf("Starting Kong extension server on port %d. Get started via /", port)
@@ -53,41 +52,37 @@ func getExtensionDescription() ExtensionListResponse {
 		Attacks: []attack_kit_api.DescribingEndpointReference{
 			{
 				"GET",
-				steadybit.ServiceAttackEndpoint,
+				kong.ServiceAttackEndpoint,
 			},
 			{
 				"GET",
-				steadybit.RouteAttackEndpoint,
+				kong.RouteAttackEndpoint,
 			},
 		},
 		Discoveries: []discovery_kit_api.DescribingEndpointReference{
 			{
 				"GET",
-				services.ServiceDiscoveryEndpoint,
+				kong.ServiceDiscoveryEndpoint,
 			},
 			{
 				"GET",
-				routes.RouteDiscoveryEndpoint,
+				kong.RouteDiscoveryEndpoint,
 			},
 		},
 		TargetTypes: []discovery_kit_api.DescribingEndpointReference{
 			{
 				"GET",
-				services.ServiceDiscoveryEndpoint + "/target-description",
+				kong.ServiceDiscoveryEndpoint + "/target-description",
 			},
 			{
 				"GET",
-				routes.RouteDiscoveryEndpoint + "/target-description",
+				kong.RouteDiscoveryEndpoint + "/target-description",
 			},
 		},
 		TargetAttributes: []discovery_kit_api.DescribingEndpointReference{
 			{
 				"GET",
-				services.ServiceDiscoveryEndpoint + "/attribute-descriptions",
-			},
-			{
-				"GET",
-				routes.RouteDiscoveryEndpoint + "/attribute-descriptions",
+				"/kong/attribute-descriptions",
 			},
 		},
 	}

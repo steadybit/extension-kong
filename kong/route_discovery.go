@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: 2022 Steadybit GmbH
 
-package routes
+package kong
 
 import (
 	"fmt"
+	"github.com/kong/go-kong/kong"
 	"github.com/rs/zerolog/log"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
-	"github.com/steadybit/extension-kong/common"
 	"github.com/steadybit/extension-kong/config"
 	"github.com/steadybit/extension-kong/utils"
 	"net/http"
@@ -19,13 +19,12 @@ const RouteDiscoveryEndpoint = "/kong/route/discovery"
 func RegisterRouteDiscoveryHandlers() {
 	utils.RegisterHttpHandler(RouteDiscoveryEndpoint, utils.GetterAsHandler(getRouteDiscoveryDescription))
 	utils.RegisterHttpHandler(RouteDiscoveryEndpoint+"/target-description", utils.GetterAsHandler(getRouteTargetDescription))
-	utils.RegisterHttpHandler(RouteDiscoveryEndpoint+"/attribute-descriptions", utils.GetterAsHandler(getRouteAttributeDescriptions))
 	utils.RegisterHttpHandler(RouteDiscoveryEndpoint+"/discovered-routes", getRouteDiscoveryResults)
 }
 
 func getRouteDiscoveryDescription() discovery_kit_api.DiscoveryDescription {
 	return discovery_kit_api.DiscoveryDescription{
-		Id:         common.RouteTargetID,
+		Id:         RouteTargetID,
 		RestrictTo: discovery_kit_api.Ptr(discovery_kit_api.LEADER),
 		Discover: discovery_kit_api.DescribingEndpointReferenceWithCallInterval{
 			Method:       "GET",
@@ -37,17 +36,17 @@ func getRouteDiscoveryDescription() discovery_kit_api.DiscoveryDescription {
 
 func getRouteTargetDescription() discovery_kit_api.TargetDescription {
 	return discovery_kit_api.TargetDescription{
-		Id:       common.RouteTargetID,
+		Id:       RouteTargetID,
 		Label:    discovery_kit_api.PluralLabel{One: "Kong route", Other: "Kong routes"},
 		Category: discovery_kit_api.Ptr("API gateway"),
 		Version:  "1.1.1",
-		Icon:     discovery_kit_api.Ptr(common.RouteIcon),
+		Icon:     discovery_kit_api.Ptr(RouteIcon),
 		Table: discovery_kit_api.Table{
 			Columns: []discovery_kit_api.Column{
 				{Attribute: "kong.instance.name"},
 				{Attribute: "kong.route.name"},
 				{Attribute: "kong.route.id"},
-				{Attribute: "kong.route.service.name"},
+				{Attribute: "kong.service.name"},
 				{Attribute: "kong.route.tag"},
 				{Attribute: "kong.route.host"},
 				{Attribute: "kong.route.method"},
@@ -57,63 +56,6 @@ func getRouteTargetDescription() discovery_kit_api.TargetDescription {
 				{
 					Attribute: "kong.route.name",
 					Direction: "ASC",
-				},
-			},
-		},
-	}
-}
-
-func getRouteAttributeDescriptions() discovery_kit_api.AttributeDescriptions {
-	return discovery_kit_api.AttributeDescriptions{
-		Attributes: []discovery_kit_api.AttributeDescription{
-			{
-				Attribute: "kong.instance.name",
-				Label: discovery_kit_api.PluralLabel{
-					One:   "Kong instance name",
-					Other: "Kong instance names",
-				},
-			}, {
-				Attribute: "kong.route.name",
-				Label: discovery_kit_api.PluralLabel{
-					One:   "Kong route name",
-					Other: "Kong route names",
-				},
-			}, {
-				Attribute: "kong.route.id",
-				Label: discovery_kit_api.PluralLabel{
-					One:   "Kong route ID",
-					Other: "Kong route IDs",
-				},
-			},
-			{
-				Attribute: "kong.route.service.name",
-				Label: discovery_kit_api.PluralLabel{
-					One:   "Kong route service name",
-					Other: "Kong route service names",
-				},
-			}, {
-				Attribute: "kong.route.tag",
-				Label: discovery_kit_api.PluralLabel{
-					One:   "Kong route tag",
-					Other: "Kong route tags",
-				},
-			}, {
-				Attribute: "kong.route.host",
-				Label: discovery_kit_api.PluralLabel{
-					One:   "Kong route host",
-					Other: "Kong route hosts",
-				},
-			}, {
-				Attribute: "kong.route.method",
-				Label: discovery_kit_api.PluralLabel{
-					One:   "Kong route method",
-					Other: "Kong route methods",
-				},
-			}, {
-				Attribute: "kong.route.path",
-				Label: discovery_kit_api.PluralLabel{
-					One:   "Kong route path",
-					Other: "Kong route paths",
 				},
 			},
 		},
@@ -135,6 +77,12 @@ func GetRouteTargets(instance *config.Instance) []discovery_kit_api.Target {
 		return []discovery_kit_api.Target{}
 	}
 
+	services, err := instance.GetServices()
+	if err != nil {
+		log.Err(err).Msgf("Failed to get services from Kong instance %s (%s)", instance.Name, instance.BaseUrl)
+		return []discovery_kit_api.Target{}
+	}
+
 	targets := make([]discovery_kit_api.Target, len(routes))
 	for i, route := range routes {
 
@@ -148,9 +96,14 @@ func GetRouteTargets(instance *config.Instance) []discovery_kit_api.Target {
 			attributes["steadybit.label"] = []string{*route.Name}
 		}
 		var url strings.Builder
-		if route.Service != nil && route.Service.Name != nil {
-			attributes["kong.route.service.name"] = []string{*route.Service.Name}
-			fmt.Fprintf(&url, "%s://", *route.Service.Name)
+		if route.Service != nil && route.Service.ID != nil {
+			attributes["kong.service.id"] = []string{*route.Service.ID}
+
+			service := findService(services, route.Service.ID)
+			if service != nil {
+				attributes["kong.service.name"] = []string{*service.Name}
+				fmt.Fprintf(&url, "%s://", *service.Name)
+			}
 		}
 		for _, path := range route.Paths {
 			attributes["kong.route.path"] = append(attributes["kong.route.path"], *path)
@@ -168,9 +121,18 @@ func GetRouteTargets(instance *config.Instance) []discovery_kit_api.Target {
 		targets[i] = discovery_kit_api.Target{
 			Id:         fmt.Sprintf("%s-%s", instance.Name, *route.ID),
 			Label:      *route.Name,
-			TargetType: "com.github.steadybit.extension_kong.route",
+			TargetType: RouteTargetID,
 			Attributes: attributes,
 		}
 	}
 	return targets
+}
+
+func findService(services []*kong.Service, serviceId *string) *kong.Service {
+	for _, service := range services {
+		if *service.ID == *serviceId {
+			return service
+		}
+	}
+	return nil
 }

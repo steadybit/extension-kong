@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: 2022 Steadybit GmbH
 
-package services
+package kong
 
 import (
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
-	"github.com/steadybit/extension-kong/common"
 	"github.com/steadybit/extension-kong/config"
 	"github.com/steadybit/extension-kong/utils"
 	"net/http"
@@ -20,13 +19,12 @@ const ServiceDiscoveryEndpoint = "/kong/service/discovery"
 func RegisterServiceDiscoveryHandlers() {
 	utils.RegisterHttpHandler(ServiceDiscoveryEndpoint, utils.GetterAsHandler(getServiceDiscoveryDescription))
 	utils.RegisterHttpHandler(ServiceDiscoveryEndpoint+"/target-description", utils.GetterAsHandler(getServiceTargetDescription))
-	utils.RegisterHttpHandler(ServiceDiscoveryEndpoint+"/attribute-descriptions", utils.GetterAsHandler(getServiceAttributeDescriptions))
 	utils.RegisterHttpHandler(ServiceDiscoveryEndpoint+"/discovered-services", getServiceDiscoveryResults)
 }
 
 func getServiceDiscoveryDescription() discovery_kit_api.DiscoveryDescription {
 	return discovery_kit_api.DiscoveryDescription{
-		Id:         common.ServiceTargetId,
+		Id:         ServiceTargetId,
 		RestrictTo: discovery_kit_api.Ptr(discovery_kit_api.LEADER),
 		Discover: discovery_kit_api.DescribingEndpointReferenceWithCallInterval{
 			Method:       "GET",
@@ -38,11 +36,11 @@ func getServiceDiscoveryDescription() discovery_kit_api.DiscoveryDescription {
 
 func getServiceTargetDescription() discovery_kit_api.TargetDescription {
 	return discovery_kit_api.TargetDescription{
-		Id:       common.ServiceTargetId,
+		Id:       ServiceTargetId,
 		Label:    discovery_kit_api.PluralLabel{One: "Kong service", Other: "Kong services"},
 		Category: discovery_kit_api.Ptr("API gateway"),
 		Version:  "1.1.1",
-		Icon:     discovery_kit_api.Ptr(common.ServiceIcon),
+		Icon:     discovery_kit_api.Ptr(ServiceIcon),
 		Table: discovery_kit_api.Table{
 			Columns: []discovery_kit_api.Column{
 				{Attribute: "kong.service.name"},
@@ -55,51 +53,6 @@ func getServiceTargetDescription() discovery_kit_api.TargetDescription {
 				{
 					Attribute: "kong.service.name",
 					Direction: "ASC",
-				},
-			},
-		},
-	}
-}
-
-func getServiceAttributeDescriptions() discovery_kit_api.AttributeDescriptions {
-	return discovery_kit_api.AttributeDescriptions{
-		Attributes: []discovery_kit_api.AttributeDescription{
-			{
-				Attribute: "kong.instance.name",
-				Label: discovery_kit_api.PluralLabel{
-					One:   "Kong instance name",
-					Other: "Kong instance names",
-				},
-			}, {
-				Attribute: "kong.service.name",
-				Label: discovery_kit_api.PluralLabel{
-					One:   "Kong service name",
-					Other: "Kong service names",
-				},
-			}, {
-				Attribute: "kong.service.id",
-				Label: discovery_kit_api.PluralLabel{
-					One:   "Kong service ID",
-					Other: "Kong service IDs",
-				},
-			},
-			{
-				Attribute: "kong.service.url",
-				Label: discovery_kit_api.PluralLabel{
-					One:   "Kong service URL",
-					Other: "Kong service URLs",
-				},
-			}, {
-				Attribute: "kong.service.tag",
-				Label: discovery_kit_api.PluralLabel{
-					One:   "Kong service tag",
-					Other: "Kong service tags",
-				},
-			}, {
-				Attribute: "kong.service.enabled",
-				Label: discovery_kit_api.PluralLabel{
-					One:   "Kong service enabled",
-					Other: "Kong service enabled",
 				},
 			},
 		},
@@ -165,7 +118,7 @@ func GetServiceTargets(instance *config.Instance) []discovery_kit_api.Target {
 		targets[i] = discovery_kit_api.Target{
 			Id:         fmt.Sprintf("%s-%s", instance.Name, *service.ID),
 			Label:      *service.Name,
-			TargetType: "com.github.steadybit.extension_kong.service",
+			TargetType: ServiceTargetId,
 			Attributes: attributes,
 		}
 	}

@@ -5,8 +5,7 @@ module github.com/steadybit/extension-kong
 
 go 1.18
 
-// In the waiting of v0.33.0
-require github.com/kong/go-kong v0.32.1-0.20220930073151-c9887e14a983
+require github.com/kong/go-kong v0.33.0
 
 require github.com/steadybit/attack-kit/go/attack_kit_api v0.1.0
 
