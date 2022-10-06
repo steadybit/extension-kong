@@ -71,11 +71,6 @@ func getRouteDiscoveryResults(w http.ResponseWriter, _ *http.Request, _ []byte) 
 }
 
 func GetRouteTargets(instance *config.Instance) []discovery_kit_api.Target {
-	routes, err := instance.GetRoutes()
-	if err != nil {
-		log.Err(err).Msgf("Failed to get routes from Kong instance %s (%s)", instance.Name, instance.BaseUrl)
-		return []discovery_kit_api.Target{}
-	}
 
 	services, err := instance.GetServices()
 	if err != nil {
@@ -83,46 +78,55 @@ func GetRouteTargets(instance *config.Instance) []discovery_kit_api.Target {
 		return []discovery_kit_api.Target{}
 	}
 
-	targets := make([]discovery_kit_api.Target, len(routes))
-	for i, route := range routes {
+	targets := make([]discovery_kit_api.Target, 0)
+	for _, service := range services {
 
-		attributes := make(map[string][]string)
-		attributes["kong.instance.name"] = []string{instance.Name}
-		if route.ID != nil {
-			attributes["kong.route.id"] = []string{*route.ID}
+		routes, _, err := instance.GetRoutesForService(service.ID)
+		if err != nil {
+			log.Err(err).Msgf("Failed to get routes from Kong instance %s (%s)", instance.Name, instance.BaseUrl)
+			return []discovery_kit_api.Target{}
 		}
-		if route.Name != nil {
-			attributes["kong.route.name"] = []string{*route.Name}
-			attributes["steadybit.label"] = []string{*route.Name}
-		}
-		var url strings.Builder
-		if route.Service != nil && route.Service.ID != nil {
-			attributes["kong.service.id"] = []string{*route.Service.ID}
 
-			service := findService(services, route.Service.ID)
-			if service != nil {
-				attributes["kong.service.name"] = []string{*service.Name}
-				fmt.Fprintf(&url, "%s://", *service.Name)
+		for _, route := range routes {
+
+			attributes := make(map[string][]string)
+			attributes["kong.instance.name"] = []string{instance.Name}
+			if route.ID != nil {
+				attributes["kong.route.id"] = []string{*route.ID}
 			}
-		}
-		for _, path := range route.Paths {
-			attributes["kong.route.path"] = append(attributes["kong.route.path"], *path)
-		}
-		for _, host := range route.Hosts {
-			attributes["kong.route.host"] = append(attributes["kong.route.host"], *host)
-		}
-		for _, tag := range route.Tags {
-			attributes["kong.route.tag"] = append(attributes["kong.route.tag"], *tag)
-		}
-		for _, method := range route.Methods {
-			attributes["kong.route.method"] = append(attributes["kong.route.method"], *method)
-		}
+			if route.Name != nil {
+				attributes["kong.route.name"] = []string{*route.Name}
+				attributes["steadybit.label"] = []string{*route.Name}
+			}
+			var url strings.Builder
+			if route.Service != nil && route.Service.ID != nil {
+				attributes["kong.service.id"] = []string{*route.Service.ID}
 
-		targets[i] = discovery_kit_api.Target{
-			Id:         fmt.Sprintf("%s-%s", instance.Name, *route.ID),
-			Label:      *route.Name,
-			TargetType: RouteTargetID,
-			Attributes: attributes,
+				service := findService(services, route.Service.ID)
+				if service != nil {
+					attributes["kong.service.name"] = []string{*service.Name}
+					fmt.Fprintf(&url, "%s://", *service.Name)
+				}
+			}
+			for _, path := range route.Paths {
+				attributes["kong.route.path"] = append(attributes["kong.route.path"], *path)
+			}
+			for _, host := range route.Hosts {
+				attributes["kong.route.host"] = append(attributes["kong.route.host"], *host)
+			}
+			for _, tag := range route.Tags {
+				attributes["kong.route.tag"] = append(attributes["kong.route.tag"], *tag)
+			}
+			for _, method := range route.Methods {
+				attributes["kong.route.method"] = append(attributes["kong.route.method"], *method)
+			}
+
+			targets = append(targets, discovery_kit_api.Target{
+				Id:         fmt.Sprintf("%s-%s", instance.Name, *route.ID),
+				Label:      *route.Name,
+				TargetType: RouteTargetID,
+				Attributes: attributes,
+			})
 		}
 	}
 	return targets

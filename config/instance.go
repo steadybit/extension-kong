@@ -150,12 +150,12 @@ func (i *Instance) GetServices() ([]*kong.Service, error) {
 	return client.Services.ListAll(ctx)
 }
 
-func (i *Instance) GetRoutes() ([]*kong.Route, error) {
+func (i *Instance) GetRoutesForService(serviceNameOrID *string) ([]*kong.Route, *kong.ListOpt, error) {
 	client, err := i.GetClient()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	ctx := context.Background()
-	return client.Routes.ListAll(ctx)
+	return client.Routes.ListForService(ctx, serviceNameOrID, nil)
 }
