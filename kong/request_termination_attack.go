@@ -166,21 +166,21 @@ func StartRequestTermination(body []byte) (*RequestTerminationState, *attack_kit
 
 	for _, pluginId := range state.PluginIds {
 		// try to update first at route level
-		if &state.RouteId != nil {
+		if state.RouteId != "" {
 			_, err = instance.UpdatePluginForRoute(&state.RouteId, &kong.Plugin{
 				ID:      &pluginId,
 				Enabled: utils.Bool(true),
 			})
 			if err != nil {
-				return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s' at %s level", pluginId, "route"), err))
+				return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s' at route level", pluginId), err))
 			}
-		} else if &state.ServiceId != nil {
+		} else if state.ServiceId != "" {
 			_, err = instance.UpdatePluginForService(&state.ServiceId, &kong.Plugin{
 				ID:      &pluginId,
 				Enabled: utils.Bool(true),
 			})
 			if err != nil {
-				return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s' at %s level", pluginId, "service"), err))
+				return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s' at service level", pluginId), err))
 			}
 		}
 
@@ -215,12 +215,11 @@ func StopRequestTermination(body []byte) *attack_kit_api.AttackKitError {
 
 	for _, pluginId := range state.PluginIds {
 		level := "service"
-		if &state.ServiceId != nil {
-			err = instance.DeletePluginForService(&state.ServiceId, &pluginId)
-		}
-		if &state.RouteId != nil {
+		if state.RouteId != "" {
 			err = instance.DeletePluginForRoute(&state.RouteId, &pluginId)
 			level = "route"
+		} else if state.ServiceId != "" {
+			err = instance.DeletePluginForService(&state.ServiceId, &pluginId)
 		}
 		if err != nil {
 			return attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to delete plugin within Kong for plugin ID '%s' at %s level", pluginId, level), err))
