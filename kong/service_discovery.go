@@ -29,7 +29,7 @@ func getServiceDiscoveryDescription() discovery_kit_api.DiscoveryDescription {
 		Discover: discovery_kit_api.DescribingEndpointReferenceWithCallInterval{
 			Method:       "GET",
 			Path:         ServiceDiscoveryEndpoint + "/discovered-services",
-			CallInterval: discovery_kit_api.Ptr("30s"),
+			CallInterval: discovery_kit_api.Ptr("300s"),
 		},
 	}
 }
