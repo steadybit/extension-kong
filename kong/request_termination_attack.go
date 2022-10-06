@@ -98,7 +98,7 @@ func PrepareRequestTermination(body []byte) (*RequestTerminationState, *attack_k
 		kongConfig["trigger"] = request.Config["trigger"]
 	}
 
-	plugin, err := instance.CreatePlugin(&kong.Plugin{
+	plugin, err := instance.CreatePluginAtAnyLevel(&kong.Plugin{
 		Name:    utils.String("request-termination"),
 		Enabled: utils.Bool(false),
 		Tags: utils.Strings([]string{
@@ -168,12 +168,23 @@ func StartRequestTermination(body []byte) (*RequestTerminationState, *attack_kit
 	}
 
 	for _, pluginId := range state.PluginIds {
-		_, err := instance.UpdatePlugin(&state.ServiceId, &kong.Plugin{
-			ID:      &pluginId,
-			Enabled: utils.Bool(true),
-		})
+		level := "service"
+		if &state.ServiceId != nil {
+			_, err = instance.UpdatePluginForService(&state.ServiceId, &kong.Plugin{
+				ID:      &pluginId,
+				Enabled: utils.Bool(true),
+			})
+		}
+		if &state.RouteId != nil {
+			_, err = instance.UpdatePluginForRoute(&state.RouteId, &kong.Plugin{
+				ID:      &pluginId,
+				Enabled: utils.Bool(true),
+			})
+			level = "route"
+		}
+
 		if err != nil {
-			return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s'", pluginId), err))
+			return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s' at %s level", pluginId, level), err))
 		}
 	}
 
@@ -205,9 +216,16 @@ func StopRequestTermination(body []byte) *attack_kit_api.AttackKitError {
 	}
 
 	for _, pluginId := range state.PluginIds {
-		err := instance.DeletePlugin(&state.ServiceId, &pluginId)
+		level := "service"
+		if &state.ServiceId != nil {
+			err = instance.DeletePluginForService(&state.ServiceId, &pluginId)
+		}
+		if &state.RouteId != nil {
+			err = instance.DeletePluginForRoute(&state.RouteId, &pluginId)
+			level = "route"
+		}
 		if err != nil {
-			return attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to delete plugin within Kong for plugin ID '%s'", pluginId), err))
+			return attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to delete plugin within Kong for plugin ID '%s' at %s level", pluginId, level), err))
 		}
 	}
 

@@ -107,7 +107,7 @@ func (i *Instance) FindConsumer(nameOrId *string) (*kong.Consumer, error) {
 	return client.Consumers.Get(ctx, nameOrId)
 }
 
-func (i *Instance) CreatePlugin(plugin *kong.Plugin) (*kong.Plugin, error) {
+func (i *Instance) CreatePluginAtAnyLevel(plugin *kong.Plugin) (*kong.Plugin, error) {
 	client, err := i.GetClient()
 	if err != nil {
 		return nil, err
@@ -117,10 +117,11 @@ func (i *Instance) CreatePlugin(plugin *kong.Plugin) (*kong.Plugin, error) {
 	if plugin.Route != nil {
 		return client.Plugins.CreateForRoute(ctx, plugin.Route.ID, plugin)
 	}
+
 	return client.Plugins.CreateForService(ctx, plugin.Service.ID, plugin)
 }
 
-func (i *Instance) UpdatePlugin(serviceId *string, plugin *kong.Plugin) (*kong.Plugin, error) {
+func (i *Instance) UpdatePluginForService(serviceId *string, plugin *kong.Plugin) (*kong.Plugin, error) {
 	client, err := i.GetClient()
 	if err != nil {
 		return nil, err
@@ -130,7 +131,17 @@ func (i *Instance) UpdatePlugin(serviceId *string, plugin *kong.Plugin) (*kong.P
 	return client.Plugins.UpdateForService(ctx, serviceId, plugin)
 }
 
-func (i *Instance) DeletePlugin(serviceId *string, nameOrID *string) error {
+func (i *Instance) UpdatePluginForRoute(routeId *string, plugin *kong.Plugin) (*kong.Plugin, error) {
+	client, err := i.GetClient()
+	if err != nil {
+		return nil, err
+	}
+
+	ctx := context.Background()
+	return client.Plugins.UpdateForRoute(ctx, routeId, plugin)
+}
+
+func (i *Instance) DeletePluginForService(serviceId *string, nameOrID *string) error {
 	client, err := i.GetClient()
 	if err != nil {
 		return err
@@ -138,6 +149,16 @@ func (i *Instance) DeletePlugin(serviceId *string, nameOrID *string) error {
 
 	ctx := context.Background()
 	return client.Plugins.DeleteForService(ctx, serviceId, nameOrID)
+}
+
+func (i *Instance) DeletePluginForRoute(routeId *string, nameOrID *string) error {
+	client, err := i.GetClient()
+	if err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+	return client.Plugins.DeleteForRoute(ctx, routeId, nameOrID)
 }
 
 func (i *Instance) GetServices() ([]*kong.Service, error) {
