@@ -183,6 +183,7 @@ func testPrepareWithRoute(t *testing.T, instance *config.Instance) {
 			Attributes: map[string][]string{
 				"kong.instance.name": {instance.Name},
 				"kong.route.id":      {*route.ID},
+				"kong.service.id":    {*service.ID},
 			},
 		},
 	}

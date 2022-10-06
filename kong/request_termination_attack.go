@@ -49,21 +49,18 @@ func PrepareRequestTermination(body []byte) (*RequestTerminationState, *attack_k
 
 	requestedServiceId := findFirstValue(request.Target.Attributes, "kong.service.id")
 	requestedRouteId := findFirstValue(request.Target.Attributes, "kong.route.id")
-	if requestedServiceId == nil && requestedRouteId == nil {
-		return nil, attack_kit_api.Ptr(utils.ToError("Missing target attribute 'kong.service.id' or 'kong.route.id' required.", nil))
+	if requestedServiceId == nil {
+		return nil, attack_kit_api.Ptr(utils.ToError("Missing target attribute 'kong.service.id' required.", nil))
 	}
 
-	var service *kong.Service
-	if requestedServiceId != nil {
-		service, err = instance.FindService(requestedServiceId)
-		if err != nil {
-			return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to find service '%s' within Kong", *requestedServiceId), err))
-		}
+	service, err := instance.FindService(requestedServiceId)
+	if err != nil {
+		return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to find service '%s' within Kong", *requestedServiceId), err))
 	}
 
 	var route *kong.Route
 	if requestedRouteId != nil {
-		route, err = instance.FindRoute(requestedRouteId)
+		route, err = instance.FindRoute(service, requestedRouteId)
 		if err != nil {
 			return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to find route '%s' within Kong", *requestedRouteId), err))
 		}
@@ -168,24 +165,25 @@ func StartRequestTermination(body []byte) (*RequestTerminationState, *attack_kit
 	}
 
 	for _, pluginId := range state.PluginIds {
-		level := "service"
-		if &state.ServiceId != nil {
-			_, err = instance.UpdatePluginForService(&state.ServiceId, &kong.Plugin{
-				ID:      &pluginId,
-				Enabled: utils.Bool(true),
-			})
-		}
+		// try to update first at route level
 		if &state.RouteId != nil {
 			_, err = instance.UpdatePluginForRoute(&state.RouteId, &kong.Plugin{
 				ID:      &pluginId,
 				Enabled: utils.Bool(true),
 			})
-			level = "route"
+			if err != nil {
+				return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s' at %s level", pluginId, "route"), err))
+			}
+		} else if &state.ServiceId != nil {
+			_, err = instance.UpdatePluginForService(&state.ServiceId, &kong.Plugin{
+				ID:      &pluginId,
+				Enabled: utils.Bool(true),
+			})
+			if err != nil {
+				return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s' at %s level", pluginId, "service"), err))
+			}
 		}
 
-		if err != nil {
-			return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s' at %s level", pluginId, level), err))
-		}
 	}
 
 	return &state, nil

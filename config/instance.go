@@ -87,14 +87,27 @@ func (i *Instance) FindService(nameOrId *string) (*kong.Service, error) {
 	return client.Services.Get(ctx, nameOrId)
 }
 
-func (i *Instance) FindRoute(nameOrId *string) (*kong.Route, error) {
+func (i *Instance) FindRoute(service *kong.Service, nameOrId *string) (*kong.Route, error) {
 	client, err := i.GetClient()
 	if err != nil {
 		return nil, err
 	}
 
 	ctx := context.Background()
-	return client.Routes.Get(ctx, nameOrId)
+	routes, _, err := client.Routes.ListForService(ctx, service.ID, nil)
+	if err != nil {
+		return nil, err
+	}
+	var routeFound *kong.Route
+	for _, route := range routes {
+		if *route.ID == *nameOrId || *route.Name == *nameOrId {
+			routeFound = route
+		}
+	}
+	if routeFound == nil {
+		return nil, fmt.Errorf("the route %s does not belong to the service %s", *nameOrId, *service.Name)
+	}
+	return routeFound, nil
 }
 
 func (i *Instance) FindConsumer(nameOrId *string) (*kong.Consumer, error) {
