@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.4.1
+
+ - Use more specific Kong API gateway API endpoints to avoid security issues related to forbidden API endpoints. Contributed by [@achoimet](https://github.com/achoimet).
+
 ## v1.4.0
 
  - New discovery for Kong routes. Contributed by [@achoimet](https://github.com/achoimet).
