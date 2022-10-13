@@ -5,7 +5,6 @@ package kong
 
 import (
 	"fmt"
-	"github.com/kong/go-kong/kong"
 	"github.com/rs/zerolog/log"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
 	"github.com/steadybit/extension-kong/config"
@@ -71,24 +70,21 @@ func getRouteDiscoveryResults(w http.ResponseWriter, _ *http.Request, _ []byte) 
 }
 
 func GetRouteTargets(instance *config.Instance) []discovery_kit_api.Target {
-
 	services, err := instance.GetServices()
 	if err != nil {
 		log.Err(err).Msgf("Failed to get services from Kong instance %s (%s)", instance.Name, instance.BaseUrl)
 		return []discovery_kit_api.Target{}
 	}
 
-	targets := make([]discovery_kit_api.Target, 0)
+	targets := make([]discovery_kit_api.Target, 0, len(services)*10)
 	for _, service := range services {
-
 		routes, _, err := instance.GetRoutesForService(service.ID)
 		if err != nil {
-			log.Err(err).Msgf("Failed to get routes from Kong instance %s (%s)", instance.Name, instance.BaseUrl)
-			return []discovery_kit_api.Target{}
+			log.Err(err).Msgf("Failed to get routes from Kong instance %s (%s) for service %s (%s)", instance.Name, instance.BaseUrl, *service.Name, *service.ID)
+			continue
 		}
 
 		for _, route := range routes {
-
 			attributes := make(map[string][]string)
 			attributes["kong.instance.name"] = []string{instance.Name}
 			if route.ID != nil {
@@ -99,15 +95,10 @@ func GetRouteTargets(instance *config.Instance) []discovery_kit_api.Target {
 				attributes["steadybit.label"] = []string{*route.Name}
 			}
 			var url strings.Builder
-			if route.Service != nil && route.Service.ID != nil {
-				attributes["kong.service.id"] = []string{*route.Service.ID}
+			attributes["kong.service.id"] = []string{*service.ID}
+			attributes["kong.service.name"] = []string{*service.Name}
+			fmt.Fprintf(&url, "%s://", *service.Name)
 
-				service := findService(services, route.Service.ID)
-				if service != nil {
-					attributes["kong.service.name"] = []string{*service.Name}
-					fmt.Fprintf(&url, "%s://", *service.Name)
-				}
-			}
 			for _, path := range route.Paths {
 				attributes["kong.route.path"] = append(attributes["kong.route.path"], *path)
 			}
@@ -130,13 +121,4 @@ func GetRouteTargets(instance *config.Instance) []discovery_kit_api.Target {
 		}
 	}
 	return targets
-}
-
-func findService(services []*kong.Service, serviceId *string) *kong.Service {
-	for _, service := range services {
-		if *service.ID == *serviceId {
-			return service
-		}
-	}
-	return nil
 }
