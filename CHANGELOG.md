@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.5.0
+
+- Support for the `STEADYBIT_LOG_FORMAT` env variable. When set to `json`, extensions will log JSON lines to stderr.
+
 ## v1.4.1
 
  - Use more specific Kong API gateway API endpoints to avoid security issues related to forbidden API endpoints. Contributed by [@achoimet](https://github.com/achoimet).
