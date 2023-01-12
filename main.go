@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: MIT
-// SPDX-FileCopyrightText: 2022 Steadybit GmbH
+// SPDX-FileCopyrightText: 2023 Steadybit GmbH
 
 package main
 
 import (
-	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/steadybit/attack-kit/go/attack_kit_api"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
+	"github.com/steadybit/extension-kit/exthttp"
 	"github.com/steadybit/extension-kit/extlogging"
 	"github.com/steadybit/extension-kong/config"
 	"github.com/steadybit/extension-kong/kong"
 	"github.com/steadybit/extension-kong/utils"
-	"net/http"
 )
 
 func main() {
@@ -26,8 +25,6 @@ func main() {
 	kong.RegisterServiceAttackHandlers()
 	kong.RegisterRouteAttackHandlers()
 
-	port := 8084
-	log.Log().Msgf("Starting Kong extension server on port %d. Get started via /", port)
 	log.Log().Msgf("Starting with configuration:")
 	for _, instance := range config.Instances {
 		if instance.IsAuthenticated() {
@@ -36,8 +33,9 @@ func main() {
 			log.Log().Msgf("  %s: %s", instance.Name, instance.BaseUrl)
 		}
 	}
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
-	log.Fatal().Err(err).Msgf("Failed to start HTTP server")
+	exthttp.Listen(exthttp.ListenOpts{
+		Port: 8084,
+	})
 }
 
 type ExtensionListResponse struct {

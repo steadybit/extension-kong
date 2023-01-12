@@ -13,7 +13,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rs/zerolog v1.27.0
 	github.com/steadybit/discovery-kit/go/discovery_kit_api v0.1.0
-	github.com/steadybit/extension-kit v1.5.0
+	github.com/steadybit/extension-kit v1.6.0
 	github.com/stretchr/testify v1.8.0
 	github.com/testcontainers/testcontainers-go v0.13.0
 )
@@ -43,6 +43,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
+	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/kong/semver/v4 v4.0.1 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
