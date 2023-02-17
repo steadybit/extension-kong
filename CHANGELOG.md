@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.6.1
+
+ - Fix an issue that can occur with routes without an ID or name. Contributed by [@achoimet](https://github.com/achoimet).
+
 ## v1.6.0
 
  - Support creation of a TLS server through the environment variables `STEADYBIT_EXTENSION_TLS_SERVER_CERT` and `STEADYBIT_EXTENSION_TLS_SERVER_KEY`. Both environment variables must refer to files containing the certificate and key in PEM format.
