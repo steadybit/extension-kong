@@ -112,12 +112,15 @@ func GetRouteTargets(instance *config.Instance) []discovery_kit_api.Target {
 				attributes["kong.route.method"] = append(attributes["kong.route.method"], *method)
 			}
 
-			targets = append(targets, discovery_kit_api.Target{
-				Id:         fmt.Sprintf("%s-%s", instance.Name, *route.ID),
-				Label:      *route.Name,
-				TargetType: RouteTargetID,
-				Attributes: attributes,
-			})
+			if route.ID != nil && route.Name != nil {
+				targets = append(targets, discovery_kit_api.Target{
+					Id:         fmt.Sprintf("%s-%s", instance.Name, *route.ID),
+					Label:      *route.Name,
+					TargetType: RouteTargetID,
+					Attributes: attributes,
+				})
+			}
+
 		}
 	}
 	return targets
