@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.7.0
+
+ - Print build information on extension startup.
+
 ## v1.6.1
 
  - Fix an issue that can occur with routes without an ID or name. Contributed by [@achoimet](https://github.com/achoimet).
