@@ -13,7 +13,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rs/zerolog v1.27.0
 	github.com/steadybit/discovery-kit/go/discovery_kit_api v0.1.0
-	github.com/steadybit/extension-kit v1.6.0
+	github.com/steadybit/extension-kit v1.7.1
 	github.com/stretchr/testify v1.8.0
 	github.com/testcontainers/testcontainers-go v0.13.0
 )

@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/steadybit/attack-kit/go/attack_kit_api"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
+	"github.com/steadybit/extension-kit/extbuild"
 	"github.com/steadybit/extension-kit/exthttp"
 	"github.com/steadybit/extension-kit/extlogging"
 	"github.com/steadybit/extension-kong/config"
@@ -16,6 +17,7 @@ import (
 
 func main() {
 	extlogging.InitZeroLog()
+	extbuild.PrintBuildInformation()
 
 	utils.RegisterHttpHandler("/", utils.GetterAsHandler(getExtensionDescription))
 
