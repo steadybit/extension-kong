@@ -3,18 +3,19 @@
 
 module github.com/steadybit/extension-kong
 
-go 1.18
+go 1.20
 
-require github.com/kong/go-kong v0.33.0
+require github.com/kong/go-kong v0.40.0
 
-require github.com/steadybit/attack-kit/go/attack_kit_api v0.1.0
+require github.com/steadybit/attack-kit/go/attack_kit_api v0.5.0
 
 require (
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/rs/zerolog v1.27.0
-	github.com/steadybit/discovery-kit/go/discovery_kit_api v0.1.0
-	github.com/steadybit/extension-kit v1.7.1
-	github.com/stretchr/testify v1.8.0
+	github.com/rs/zerolog v1.29.1
+	github.com/steadybit/action-kit/go/action_kit_sdk v1.0.2
+	github.com/steadybit/discovery-kit/go/discovery_kit_api v1.3.0
+	github.com/steadybit/extension-kit v1.7.10
+	github.com/stretchr/testify v1.8.2
 	github.com/testcontainers/testcontainers-go v0.13.0
 )
 
@@ -42,12 +43,12 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/imdario/mergo v0.3.12 // indirect
+	github.com/imdario/mergo v0.3.15 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/kong/semver/v4 v4.0.1 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
-	github.com/mattn/go-colorable v0.1.12 // indirect
-	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.18 // indirect
 	github.com/moby/sys/mount v0.2.0 // indirect
 	github.com/moby/sys/mountinfo v0.5.0 // indirect
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
@@ -58,14 +59,15 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
-	github.com/tidwall/gjson v1.14.3 // indirect
+	github.com/steadybit/action-kit/go/action_kit_api/v2 v2.4.5 // indirect
+	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
-	github.com/tidwall/pretty v1.2.0 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
 	google.golang.org/genproto v0.0.0-20220502173005-c8bf987b8c21 // indirect
 	google.golang.org/grpc v1.47.0 // indirect
-	google.golang.org/protobuf v1.28.0 // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

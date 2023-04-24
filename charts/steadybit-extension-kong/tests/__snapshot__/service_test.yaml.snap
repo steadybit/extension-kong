@@ -1,0 +1,68 @@
+manifest should match snapshot with TLS:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        steadybit.com/extension-auto-discovery: "{\n  \"extensions\": [\n    {\n      \"port\": 8084,\n      \"types\": [\"ACTION\",\"DISCOVERY\"],\n      \"tls\": {\n        \"server\": {\n          \"extraCertsFile\": \"/opt/steadybit/agent/etc/extension-mtls/server-cert/tls.crt\"\n        }\n        \n      }\n    }\n  ]\n}\n"
+      labels: null
+      name: RELEASE-NAME-steadybit-extension-kong
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - port: 8084
+          protocol: TCP
+          targetPort: 8084
+      selector:
+        app.kubernetes.io/name: steadybit-extension-kong
+manifest should match snapshot with mutual TLS:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        steadybit.com/extension-auto-discovery: |
+          {
+            "extensions": [
+              {
+                "port": 8084,
+                "types": ["ACTION","DISCOVERY"],
+                "tls": {
+                  "server": {
+                    "extraCertsFile": "/opt/steadybit/agent/etc/extension-mtls/server-cert/tls.crt"
+                  },
+                  "client": {
+                    "certChainFile": "/opt/steadybit/agent/etc/extension-mtls/client-cert-a/tls.crt",
+                    "certKeyFile": "/opt/steadybit/agent/etc/extension-mtls/client-cert-a/tls.key"
+                  }
+                }
+              }
+            ]
+          }
+      labels: null
+      name: RELEASE-NAME-steadybit-extension-kong
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - port: 8084
+          protocol: TCP
+          targetPort: 8084
+      selector:
+        app.kubernetes.io/name: steadybit-extension-kong
+manifest should match snapshot without TLS:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        steadybit.com/extension-auto-discovery: "{\n  \"extensions\": [\n    {\n      \"port\": 8084,\n      \"types\": [\"ACTION\",\"DISCOVERY\"],\n      \"tls\": {\n        \n      }\n    }\n  ]\n}\n"
+      labels: null
+      name: RELEASE-NAME-steadybit-extension-kong
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - port: 8084
+          protocol: TCP
+          targetPort: 8084
+      selector:
+        app.kubernetes.io/name: steadybit-extension-kong

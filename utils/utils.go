@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/steadybit/attack-kit/go/attack_kit_api"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"runtime/debug"
 )
@@ -54,7 +54,7 @@ func PanicRecovery(next func(w http.ResponseWriter, r *http.Request)) http.Handl
 
 func LogRequest(next func(w http.ResponseWriter, r *http.Request, body []byte)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		body, bodyReadErr := ioutil.ReadAll(r.Body)
+		body, bodyReadErr := io.ReadAll(r.Body)
 		if bodyReadErr != nil {
 			http.Error(w, bodyReadErr.Error(), http.StatusBadRequest)
 			return

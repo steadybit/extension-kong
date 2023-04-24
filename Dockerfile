@@ -3,7 +3,7 @@
 ##
 ## Build
 ##
-FROM golang:1.18-alpine AS build
+FROM golang:1.20-alpine AS build
 
 ARG NAME
 ARG VERSION
@@ -18,11 +18,11 @@ RUN go mod download
 COPY . .
 
 RUN go build \
-	-ldflags="\
-	-X 'github.com/steadybit/extension-kit/extbuild.ExtensionName=${NAME}' \
-	-X 'github.com/steadybit/extension-kit/extbuild.Version=${VERSION}' \
-	-X 'github.com/steadybit/extension-kit/extbuild.Revision=${REVISION}'" \
-	-o /extension-kong
+    -ldflags="\
+    -X 'github.com/steadybit/extension-kit/extbuild.ExtensionName=${NAME}' \
+    -X 'github.com/steadybit/extension-kit/extbuild.Version=${VERSION}' \
+    -X 'github.com/steadybit/extension-kit/extbuild.Revision=${REVISION}'" \
+    -o ./extension
 
 ##
 ## Runtime
@@ -38,8 +38,9 @@ USER $USERNAME
 
 WORKDIR /
 
-COPY --from=build /extension-kong /extension-kong
+COPY --from=build /app/extension /extension
 
 EXPOSE 8084
+EXPOSE 8085
 
-ENTRYPOINT ["/extension-kong"]
+ENTRYPOINT ["/extension"]

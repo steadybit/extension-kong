@@ -1,3 +1,4 @@
 extension-kong
 
 *.iml
+/coverage.out

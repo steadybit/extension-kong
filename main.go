@@ -5,9 +5,11 @@ package main
 
 import (
 	"github.com/rs/zerolog/log"
+	"github.com/steadybit/action-kit/go/action_kit_sdk"
 	"github.com/steadybit/attack-kit/go/attack_kit_api"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
 	"github.com/steadybit/extension-kit/extbuild"
+	"github.com/steadybit/extension-kit/exthealth"
 	"github.com/steadybit/extension-kit/exthttp"
 	"github.com/steadybit/extension-kit/extlogging"
 	"github.com/steadybit/extension-kong/config"
@@ -18,6 +20,9 @@ import (
 func main() {
 	extlogging.InitZeroLog()
 	extbuild.PrintBuildInformation()
+
+	exthealth.SetReady(false)
+	exthealth.StartProbes(8085)
 
 	utils.RegisterHttpHandler("/", utils.GetterAsHandler(getExtensionDescription))
 
@@ -35,6 +40,8 @@ func main() {
 			log.Log().Msgf("  %s: %s", instance.Name, instance.BaseUrl)
 		}
 	}
+	action_kit_sdk.InstallSignalHandler()
+	exthealth.SetReady(true)
 	exthttp.Listen(exthttp.ListenOpts{
 		Port: 8084,
 	})
@@ -51,38 +58,38 @@ func getExtensionDescription() ExtensionListResponse {
 	return ExtensionListResponse{
 		Attacks: []attack_kit_api.DescribingEndpointReference{
 			{
-				"GET",
-				kong.ServiceAttackEndpoint,
+				Method: "GET",
+				Path:   kong.ServiceAttackEndpoint,
 			},
 			{
-				"GET",
-				kong.RouteAttackEndpoint,
+				Method: "GET",
+				Path:   kong.RouteAttackEndpoint,
 			},
 		},
 		Discoveries: []discovery_kit_api.DescribingEndpointReference{
 			{
-				"GET",
-				kong.ServiceDiscoveryEndpoint,
+				Method: "GET",
+				Path:   kong.ServiceDiscoveryEndpoint,
 			},
 			{
-				"GET",
-				kong.RouteDiscoveryEndpoint,
+				Method: "GET",
+				Path:   kong.RouteDiscoveryEndpoint,
 			},
 		},
 		TargetTypes: []discovery_kit_api.DescribingEndpointReference{
 			{
-				"GET",
-				kong.ServiceDiscoveryEndpoint + "/target-description",
+				Method: "GET",
+				Path:   kong.ServiceDiscoveryEndpoint + "/target-description",
 			},
 			{
-				"GET",
-				kong.RouteDiscoveryEndpoint + "/target-description",
+				Method: "GET",
+				Path:   kong.RouteDiscoveryEndpoint + "/target-description",
 			},
 		},
 		TargetAttributes: []discovery_kit_api.DescribingEndpointReference{
 			{
-				"GET",
-				"/kong/attribute-descriptions",
+				Method: "GET",
+				Path:   "/kong/attribute-descriptions",
 			},
 		},
 	}

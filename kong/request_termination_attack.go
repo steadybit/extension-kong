@@ -131,10 +131,10 @@ func isDefinedString(v interface{}) bool {
 	return v != nil && len(v.(string)) > 0
 }
 
-func decodeAttackState(attackState attack_kit_api.AttackState) (error, RequestTerminationState) {
+func decodeAttackState(attackState attack_kit_api.AttackState) (RequestTerminationState, error) {
 	var result RequestTerminationState
 	err := mapstructure.Decode(attackState, &result)
-	return err, result
+	return result, err
 }
 
 func startRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte) {
@@ -203,7 +203,7 @@ func StopRequestTermination(body []byte) *attack_kit_api.AttackKitError {
 		return attack_kit_api.Ptr(utils.ToError("Failed to parse request body", err))
 	}
 
-	err, state := decodeAttackState(stopAttackRequest.State)
+	state, err := decodeAttackState(stopAttackRequest.State)
 	if err != nil {
 		return attack_kit_api.Ptr(utils.ToError("Failed to decode attack state", err))
 	}

@@ -21,7 +21,7 @@ A [Steadybit](https://www.steadybit.com/) attack implementation to inject HTTP f
 
 ## Deployment
 
-We recommend that you deploy the extension with our [official Helm chart](https://github.com/steadybit/helm-charts/tree/main/charts/steadybit-extension-kong).
+We recommend that you deploy the extension with our [official Helm chart](https://github.com/steadybit/extension-kong/tree/main/charts/steadybit-extension-kong).
 
 ## Agent Configuration
 

@@ -11,10 +11,49 @@ on:
       - 'main'
 
 env:
+  REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build:
+  audit:
+    name: Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '^1.20.0'
+
+      - name: Audit
+        run: |
+          go mod download
+          make audit
+
+      - name: Check Sonar Token
+        id: check-sonar
+        shell: bash
+        run: |
+          if [ "${{ secrets.SONAR_TOKEN }}" != '' ]; then
+            echo "available=true" >> $GITHUB_OUTPUT;
+          else
+            echo "available=false" >> $GITHUB_OUTPUT;
+          fi
+
+      - name: SonarCloud Scan
+        if: ${{ steps.check-sonar.outputs.available == 'true' }}
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  build-images:
+    name: Build Docker Images
+    needs:
+      - audit
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -23,15 +62,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - uses: actions/setup-go@v3
         with:
-          go-version: '^1.18.0'
-
-      - name: Execute go tests
-        run: |
-          go mod download
-          go test ./...
+          fetch-depth: 0
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -43,17 +75,18 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: steadybit/extension-kong
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: ./
           push: ${{ github.event_name != 'pull_request' }}
@@ -64,3 +97,93 @@ jobs:
             NAME=${{ github.repository }}
             VERSION=${{ steps.meta.outputs.version }}
             REVISION=${{ github.sha }}
+
+  test-helm-charts:
+    name: "Test Helm Charts"
+    runs-on: ubuntu-latest
+    needs:
+      - build-images
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.9.0
+
+      - name: Add dependency chart repos
+        run: |
+          helm repo add steadybit https://steadybit.github.io/helm-charts
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Add unit testing plugin
+        run: |
+          helm plugin install https://github.com/quintush/helm-unittest
+
+      - name: Run unit tests
+        run: make charttesting
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.4.0
+
+      - name: Run chart-testing (lint)
+        run: ct lint --config chartTesting.yaml
+
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --config chartTesting.yaml)
+          if [[ -n "$changed" ]]; then
+            echo "::set-output name=changed::true"
+          fi
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.5.0
+        if: steps.list-changed.outputs.changed == 'true'
+
+      - name: Run chart-testing (install)
+        run: ct install --config chartTesting.yaml
+
+
+  release-helm-chart:
+    name: "Release Helm Chart"
+    runs-on: ubuntu-latest
+    needs:
+      - test-helm-charts
+    if: github.ref == 'refs/heads/main'
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.8.1
+
+      - name: Add dependency chart repos
+        run: |
+          helm repo add steadybit https://steadybit.github.io/helm-charts
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.5.0
+        with:
+          charts_dir: charts
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
