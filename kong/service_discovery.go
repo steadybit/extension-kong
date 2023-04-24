@@ -7,8 +7,9 @@ import (
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
+	"github.com/steadybit/extension-kit/extbuild"
+	"github.com/steadybit/extension-kit/exthttp"
 	"github.com/steadybit/extension-kong/config"
-	"github.com/steadybit/extension-kong/utils"
 	"net/http"
 	"strconv"
 	"strings"
@@ -17,9 +18,9 @@ import (
 const ServiceDiscoveryEndpoint = "/kong/service/discovery"
 
 func RegisterServiceDiscoveryHandlers() {
-	utils.RegisterHttpHandler(ServiceDiscoveryEndpoint, utils.GetterAsHandler(getServiceDiscoveryDescription))
-	utils.RegisterHttpHandler(ServiceDiscoveryEndpoint+"/target-description", utils.GetterAsHandler(getServiceTargetDescription))
-	utils.RegisterHttpHandler(ServiceDiscoveryEndpoint+"/discovered-services", getServiceDiscoveryResults)
+	exthttp.RegisterHttpHandler(ServiceDiscoveryEndpoint, exthttp.GetterAsHandler(getServiceDiscoveryDescription))
+	exthttp.RegisterHttpHandler(ServiceDiscoveryEndpoint+"/target-description", exthttp.GetterAsHandler(getServiceTargetDescription))
+	exthttp.RegisterHttpHandler(ServiceDiscoveryEndpoint+"/discovered-services", getServiceDiscoveryResults)
 }
 
 func getServiceDiscoveryDescription() discovery_kit_api.DiscoveryDescription {
@@ -39,7 +40,7 @@ func getServiceTargetDescription() discovery_kit_api.TargetDescription {
 		Id:       ServiceTargetId,
 		Label:    discovery_kit_api.PluralLabel{One: "Kong service", Other: "Kong services"},
 		Category: discovery_kit_api.Ptr("API gateway"),
-		Version:  "1.1.1",
+		Version:  extbuild.GetSemverVersionStringOrUnknown(),
 		Icon:     discovery_kit_api.Ptr(ServiceIcon),
 		Table: discovery_kit_api.Table{
 			Columns: []discovery_kit_api.Column{
@@ -64,7 +65,7 @@ func getServiceDiscoveryResults(w http.ResponseWriter, _ *http.Request, _ []byte
 	for _, instance := range config.Instances {
 		targets = append(targets, GetServiceTargets(&instance)...)
 	}
-	utils.WriteBody(w, discovery_kit_api.DiscoveredTargets{Targets: targets})
+	exthttp.WriteBody(w, discovery_kit_api.DiscoveredTargets{Targets: targets})
 }
 
 func GetServiceTargets(instance *config.Instance) []discovery_kit_api.Target {

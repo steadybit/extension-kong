@@ -7,11 +7,9 @@ go 1.20
 
 require github.com/kong/go-kong v0.40.0
 
-require github.com/steadybit/attack-kit/go/attack_kit_api v0.5.0
-
 require (
-	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rs/zerolog v1.29.1
+	github.com/steadybit/action-kit/go/action_kit_api/v2 v2.5.1
 	github.com/steadybit/action-kit/go/action_kit_sdk v1.0.2
 	github.com/steadybit/discovery-kit/go/discovery_kit_api v1.3.0
 	github.com/steadybit/extension-kit v1.7.10
@@ -49,6 +47,7 @@ require (
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.18 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/moby/sys/mount v0.2.0 // indirect
 	github.com/moby/sys/mountinfo v0.5.0 // indirect
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
@@ -59,7 +58,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
-	github.com/steadybit/action-kit/go/action_kit_api/v2 v2.4.5 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

@@ -5,10 +5,9 @@ package kong
 
 import (
 	"context"
-	"encoding/json"
-	"github.com/steadybit/attack-kit/go/attack_kit_api"
+	"github.com/steadybit/action-kit/go/action_kit_api/v2"
+	"github.com/steadybit/action-kit/go/action_kit_sdk"
 	"github.com/steadybit/extension-kong/config"
-	"github.com/steadybit/extension-kong/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -16,75 +15,71 @@ import (
 
 func testPrepareFailsWhenServiceIsMissing(t *testing.T, instance *config.Instance) {
 	// Given
-	requestBody := attack_kit_api.PrepareAttackRequestBody{
-		Target: attack_kit_api.Target{
+	requestBody := action_kit_api.PrepareActionRequestBody{
+		Target: &action_kit_api.Target{
 			Attributes: map[string][]string{
 				"kong.instance.name": {instance.Name},
 				"kong.service.id":    {"unknown"},
 			},
 		},
 	}
-	requestBodyJson, err := json.Marshal(requestBody)
-	require.NoError(t, err)
+
+	action := NewRequestTerminationAction()
+	state := action.NewEmptyState()
 
 	// When
-	state, attackKitError := PrepareRequestTermination(requestBodyJson)
-	assert.Nil(t, state)
-	assert.Contains(t, attackKitError.Title, "Failed to find service")
+	result, err := action.Prepare(context.TODO(), &state, requestBody)
+	assert.Nil(t, result)
+	assert.Contains(t, err.Error(), "Failed to find service")
 }
 
 func testPrepareFailsWhenInstanceIsUnknown(t *testing.T, _ *config.Instance) {
 	// Given
-	requestBody := attack_kit_api.PrepareAttackRequestBody{
-		Target: attack_kit_api.Target{
+	requestBody := action_kit_api.PrepareActionRequestBody{
+		Target: &action_kit_api.Target{
 			Attributes: map[string][]string{
 				"kong.instance.name": {"unknown"},
 				"kong.service.id":    {"unknown"},
 			},
 		},
 	}
-	requestBodyJson, err := json.Marshal(requestBody)
-	require.NoError(t, err)
+	action := NewRequestTerminationAction()
+	state := action.NewEmptyState()
 
 	// When
-	state, attackKitError := PrepareRequestTermination(requestBodyJson)
-	assert.Nil(t, state)
-	assert.Contains(t, attackKitError.Title, "Failed to find a configured instance named")
-}
-
-func testPrepareNoPanicOnBrokenJson(t *testing.T, _ *config.Instance) {
-	// When
-	state, attackKitError := PrepareRequestTermination([]byte{})
-	assert.Nil(t, state)
-	assert.Contains(t, attackKitError.Title, "Failed to parse request body")
+	result, err := action.Prepare(context.TODO(), &state, requestBody)
+	assert.Nil(t, result)
+	assert.Contains(t, err.Error(), "Failed to find a configured instance named")
 }
 
 func testPrepareConfiguresDisabledPlugin(t *testing.T, instance *config.Instance) {
 	// Given
 	service := configureService(t, instance, getTestService())
-	requestBody := attack_kit_api.PrepareAttackRequestBody{
+	requestBody := action_kit_api.PrepareActionRequestBody{
 		Config: map[string]interface{}{
 			"status":  200,
 			"message": "Hello from Kong extension",
 		},
-		Target: attack_kit_api.Target{
+		Target: &action_kit_api.Target{
 			Attributes: map[string][]string{
 				"kong.instance.name": {instance.Name},
 				"kong.service.id":    {*service.ID},
 			},
 		},
 	}
-	requestBodyJson, err := json.Marshal(requestBody)
-	require.NoError(t, err)
 
 	client, err := instance.GetClient()
 	require.NoError(t, err)
 
+	action := NewRequestTerminationAction()
+	state := action.NewEmptyState()
+
 	// When
-	state, attackKitError := PrepareRequestTermination(requestBodyJson)
+	result, err := action.Prepare(context.TODO(), &state, requestBody)
 
 	// Then
-	assert.Nil(t, attackKitError)
+	assert.Nil(t, err)
+	assert.Nil(t, result)
 	assert.Equal(t, instance.Name, state.InstanceName)
 	plugin, err := client.Plugins.Get(context.Background(), &state.PluginIds[0])
 	require.NoError(t, err)
@@ -102,35 +97,35 @@ func testPrepareConfiguresDisabledPlugin(t *testing.T, instance *config.Instance
 func testPrepareFailsOnUnknownConsumer(t *testing.T, instance *config.Instance) {
 	// Given
 	service := configureService(t, instance, getTestService())
-	requestBody := attack_kit_api.PrepareAttackRequestBody{
+	requestBody := action_kit_api.PrepareActionRequestBody{
 		Config: map[string]interface{}{
 			"status":   200,
 			"message":  "Hello from Kong extension",
 			"consumer": "unknown",
 		},
-		Target: attack_kit_api.Target{
+		Target: &action_kit_api.Target{
 			Attributes: map[string][]string{
 				"kong.instance.name": {instance.Name},
 				"kong.service.id":    {*service.ID},
 			},
 		},
 	}
-	requestBodyJson, err := json.Marshal(requestBody)
-	require.NoError(t, err)
+	action := NewRequestTerminationAction()
+	state := action.NewEmptyState()
 
 	// When
-	state, attackKitError := PrepareRequestTermination(requestBodyJson)
+	result, err := action.Prepare(context.TODO(), &state, requestBody)
 
 	// Then
-	assert.Nil(t, state)
-	assert.Contains(t, attackKitError.Title, "Failed to find consumer")
+	assert.Nil(t, result)
+	assert.Contains(t, err.Error(), "Failed to find consumer")
 }
 
 func testPrepareWithConsumer(t *testing.T, instance *config.Instance) {
 	// Given
 	service := configureService(t, instance, getTestService())
 	consumer := configureConsumer(t, instance, getTestConsumer())
-	requestBody := attack_kit_api.PrepareAttackRequestBody{
+	requestBody := action_kit_api.PrepareActionRequestBody{
 		Config: map[string]interface{}{
 			"status":      200,
 			"message":     "Hello from Kong extension",
@@ -139,7 +134,7 @@ func testPrepareWithConsumer(t *testing.T, instance *config.Instance) {
 			"contentType": "text/foobar",
 			"trigger":     "banana",
 		},
-		Target: attack_kit_api.Target{
+		Target: &action_kit_api.Target{
 			Attributes: map[string][]string{
 				"kong.instance.name": {instance.Name},
 				"kong.service.id":    {*service.ID},
@@ -147,17 +142,18 @@ func testPrepareWithConsumer(t *testing.T, instance *config.Instance) {
 		},
 	}
 
-	requestBodyJson, err := json.Marshal(requestBody)
-	require.NoError(t, err)
+	action := NewRequestTerminationAction()
+	state := action.NewEmptyState()
 
 	client, err := instance.GetClient()
 	require.NoError(t, err)
 
 	// When
-	state, attackKitError := PrepareRequestTermination(requestBodyJson)
+	result, err := action.Prepare(context.TODO(), &state, requestBody)
 
 	// Then
-	assert.Nil(t, attackKitError)
+	assert.Nil(t, result)
+	assert.Nil(t, err)
 	plugin, err := client.Plugins.Get(context.Background(), &state.PluginIds[0])
 	require.NoError(t, err)
 	assert.Equal(t, *consumer.ID, *plugin.Consumer.ID)
@@ -171,7 +167,7 @@ func testPrepareWithRoute(t *testing.T, instance *config.Instance) {
 	// Given
 	service := configureService(t, instance, getTestService())
 	route := configureRoute(t, instance, getTestRoute(service))
-	requestBody := attack_kit_api.PrepareAttackRequestBody{
+	requestBody := action_kit_api.PrepareActionRequestBody{
 		Config: map[string]interface{}{
 			"status":      200,
 			"message":     "Hello from Kong extension",
@@ -179,7 +175,7 @@ func testPrepareWithRoute(t *testing.T, instance *config.Instance) {
 			"contentType": "text/foobar",
 			"trigger":     "banana",
 		},
-		Target: attack_kit_api.Target{
+		Target: &action_kit_api.Target{
 			Attributes: map[string][]string{
 				"kong.instance.name": {instance.Name},
 				"kong.route.id":      {*route.ID},
@@ -188,17 +184,18 @@ func testPrepareWithRoute(t *testing.T, instance *config.Instance) {
 		},
 	}
 
-	requestBodyJson, err := json.Marshal(requestBody)
-	require.NoError(t, err)
+	action := NewRequestTerminationAction()
+	state := action.NewEmptyState()
 
 	client, err := instance.GetClient()
 	require.NoError(t, err)
 
 	// When
-	state, attackKitError := PrepareRequestTermination(requestBodyJson)
+	result, err := action.Prepare(context.TODO(), &state, requestBody)
 
 	// Then
-	assert.Nil(t, attackKitError)
+	assert.Nil(t, err)
+	assert.Nil(t, result)
 	plugin, err := client.Plugins.Get(context.Background(), &state.PluginIds[0])
 	require.NoError(t, err)
 	assert.Equal(t, *route.ID, *plugin.Route.ID)
@@ -210,24 +207,20 @@ func testPrepareWithRoute(t *testing.T, instance *config.Instance) {
 
 func testStartEnablesPlugin(t *testing.T, instance *config.Instance) {
 	// Given
+	action := NewRequestTerminationAction()
 	state := getSuccessfulPreparationState(t, instance)
-	encodedState, err := utils.EncodeAttackState(state)
-	require.NoError(t, err)
-	startRequestBodyJson, err := json.Marshal(attack_kit_api.StartAttackRequestBody{
-		State: encodedState,
-	})
-	require.NoError(t, err)
 
 	client, err := instance.GetClient()
 	require.NoError(t, err)
 
 	// When
-	newState, attackKitError := StartRequestTermination(startRequestBodyJson)
+	result, err := action.Start(context.TODO(), state)
 
 	// Then
-	assert.Nil(t, attackKitError)
-	assert.Equal(t, instance.Name, newState.InstanceName)
-	assert.Equal(t, state.PluginIds[0], newState.PluginIds[0])
+	assert.Nil(t, err)
+	assert.Nil(t, result)
+	assert.Equal(t, instance.Name, state.InstanceName)
+	assert.Equal(t, state.PluginIds[0], state.PluginIds[0])
 	plugin, err := client.Plugins.Get(context.Background(), &state.PluginIds[0])
 	require.NoError(t, err)
 	assert.Equal(t, true, *plugin.Enabled)
@@ -238,58 +231,51 @@ func testStartEnablesPlugin(t *testing.T, instance *config.Instance) {
 
 func getSuccessfulPreparationState(t *testing.T, instance *config.Instance) *RequestTerminationState {
 	service := configureService(t, instance, getTestService())
-	requestBody := attack_kit_api.PrepareAttackRequestBody{
+	requestBody := action_kit_api.PrepareActionRequestBody{
 		Config: map[string]interface{}{
 			"status":  200,
 			"message": "Hello from Kong extension",
 		},
-		Target: attack_kit_api.Target{
+		Target: &action_kit_api.Target{
 			Attributes: map[string][]string{
 				"kong.instance.name": {instance.Name},
 				"kong.service.id":    {*service.ID},
 			},
 		},
 	}
-	prepareRequestBodyJson, err := json.Marshal(requestBody)
-	require.NoError(t, err)
+	action := NewRequestTerminationAction()
+	state := action.NewEmptyState()
 
-	state, attackKitError := PrepareRequestTermination(prepareRequestBodyJson)
-	require.Nil(t, attackKitError)
-	return state
+	result, err := action.Prepare(context.TODO(), &state, requestBody)
+	require.Nil(t, result)
+	require.Nil(t, err)
+	return &state
 }
 
 func getSuccessfulStartState(t *testing.T, instance *config.Instance) *RequestTerminationState {
-	prepareState := getSuccessfulPreparationState(t, instance)
-	encodedState, err := utils.EncodeAttackState(prepareState)
-	require.NoError(t, err)
-	startRequestBodyJson, err := json.Marshal(attack_kit_api.StartAttackRequestBody{
-		State: encodedState,
-	})
-	require.NoError(t, err)
-
-	startState, attackKitError := StartRequestTermination(startRequestBodyJson)
-	assert.Nil(t, attackKitError)
-	return startState
+	state := getSuccessfulPreparationState(t, instance)
+	action := NewRequestTerminationAction()
+	result, err := action.Start(context.TODO(), state)
+	require.Nil(t, result)
+	require.Nil(t, err)
+	return state
 }
 
 func testStopDeletesPlugin(t *testing.T, instance *config.Instance) {
 	// Given
 	state := getSuccessfulStartState(t, instance)
-	encodedState, err := utils.EncodeAttackState(state)
-	require.NoError(t, err)
-	stopRequestBodyJson, err := json.Marshal(attack_kit_api.StartAttackRequestBody{
-		State: encodedState,
-	})
-	require.NoError(t, err)
+
+	action := NewRequestTerminationAction().(action_kit_sdk.ActionWithStop[RequestTerminationState])
 
 	client, err := instance.GetClient()
 	require.NoError(t, err)
 
 	// When
-	attackKitError := StopRequestTermination(stopRequestBodyJson)
+	result, err := action.Stop(context.TODO(), state)
 
 	// Then
-	assert.Nil(t, attackKitError)
+	assert.Nil(t, result)
+	assert.Nil(t, err)
 	_, err = client.Plugins.Get(context.Background(), &state.PluginIds[0])
 	assert.Error(t, err)
 }

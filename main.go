@@ -5,8 +5,8 @@ package main
 
 import (
 	"github.com/rs/zerolog/log"
+	"github.com/steadybit/action-kit/go/action_kit_api/v2"
 	"github.com/steadybit/action-kit/go/action_kit_sdk"
-	"github.com/steadybit/attack-kit/go/attack_kit_api"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
 	"github.com/steadybit/extension-kit/extbuild"
 	"github.com/steadybit/extension-kit/exthealth"
@@ -14,7 +14,6 @@ import (
 	"github.com/steadybit/extension-kit/extlogging"
 	"github.com/steadybit/extension-kong/config"
 	"github.com/steadybit/extension-kong/kong"
-	"github.com/steadybit/extension-kong/utils"
 )
 
 func main() {
@@ -24,13 +23,11 @@ func main() {
 	exthealth.SetReady(false)
 	exthealth.StartProbes(8085)
 
-	utils.RegisterHttpHandler("/", utils.GetterAsHandler(getExtensionDescription))
-
 	kong.RegisterAttributeDescriptionHandlers()
 	kong.RegisterServiceDiscoveryHandlers()
+	action_kit_sdk.RegisterAction(kong.NewServiceRequestTerminationAction())
 	kong.RegisterRouteDiscoveryHandlers()
-	kong.RegisterServiceAttackHandlers()
-	kong.RegisterRouteAttackHandlers()
+	action_kit_sdk.RegisterAction(kong.NewRequestTerminationAction())
 
 	log.Log().Msgf("Starting with configuration:")
 	for _, instance := range config.Instances {
@@ -42,54 +39,47 @@ func main() {
 	}
 	action_kit_sdk.InstallSignalHandler()
 	exthealth.SetReady(true)
+
+	exthttp.RegisterHttpHandler("/", exthttp.GetterAsHandler(getExtensionList))
 	exthttp.Listen(exthttp.ListenOpts{
 		Port: 8084,
 	})
 }
 
 type ExtensionListResponse struct {
-	Discoveries      []discovery_kit_api.DescribingEndpointReference `json:"discoveries"`
-	TargetTypes      []discovery_kit_api.DescribingEndpointReference `json:"targetTypes"`
-	TargetAttributes []discovery_kit_api.DescribingEndpointReference `json:"targetAttributes"`
-	Attacks          []attack_kit_api.DescribingEndpointReference    `json:"attacks"`
+	action_kit_api.ActionList
+	discovery_kit_api.DiscoveryList
 }
 
-func getExtensionDescription() ExtensionListResponse {
+func getExtensionList() ExtensionListResponse {
 	return ExtensionListResponse{
-		Attacks: []attack_kit_api.DescribingEndpointReference{
-			{
-				Method: "GET",
-				Path:   kong.ServiceAttackEndpoint,
+		ActionList: action_kit_sdk.GetActionList(),
+		DiscoveryList: discovery_kit_api.DiscoveryList{
+			Discoveries: []discovery_kit_api.DescribingEndpointReference{
+				{
+					Method: "GET",
+					Path:   kong.ServiceDiscoveryEndpoint,
+				},
+				{
+					Method: "GET",
+					Path:   kong.RouteDiscoveryEndpoint,
+				},
 			},
-			{
-				Method: "GET",
-				Path:   kong.RouteAttackEndpoint,
+			TargetTypes: []discovery_kit_api.DescribingEndpointReference{
+				{
+					Method: "GET",
+					Path:   kong.ServiceDiscoveryEndpoint + "/target-description",
+				},
+				{
+					Method: "GET",
+					Path:   kong.RouteDiscoveryEndpoint + "/target-description",
+				},
 			},
-		},
-		Discoveries: []discovery_kit_api.DescribingEndpointReference{
-			{
-				Method: "GET",
-				Path:   kong.ServiceDiscoveryEndpoint,
-			},
-			{
-				Method: "GET",
-				Path:   kong.RouteDiscoveryEndpoint,
-			},
-		},
-		TargetTypes: []discovery_kit_api.DescribingEndpointReference{
-			{
-				Method: "GET",
-				Path:   kong.ServiceDiscoveryEndpoint + "/target-description",
-			},
-			{
-				Method: "GET",
-				Path:   kong.RouteDiscoveryEndpoint + "/target-description",
-			},
-		},
-		TargetAttributes: []discovery_kit_api.DescribingEndpointReference{
-			{
-				Method: "GET",
-				Path:   "/kong/attribute-descriptions",
+			TargetAttributes: []discovery_kit_api.DescribingEndpointReference{
+				{
+					Method: "GET",
+					Path:   "/kong/attribute-descriptions",
+				},
 			},
 		},
 	}

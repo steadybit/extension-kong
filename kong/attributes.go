@@ -5,11 +5,11 @@ package kong
 
 import (
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
-	"github.com/steadybit/extension-kong/utils"
+	"github.com/steadybit/extension-kit/exthttp"
 )
 
 func RegisterAttributeDescriptionHandlers() {
-	utils.RegisterHttpHandler("/kong/attribute-descriptions", utils.GetterAsHandler(getAttributeDescriptions))
+	exthttp.RegisterHttpHandler("/kong/attribute-descriptions", exthttp.GetterAsHandler(getAttributeDescriptions))
 }
 
 func getAttributeDescriptions() discovery_kit_api.AttributeDescriptions {

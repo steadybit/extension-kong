@@ -7,8 +7,9 @@ import (
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
+	"github.com/steadybit/extension-kit/extbuild"
+	"github.com/steadybit/extension-kit/exthttp"
 	"github.com/steadybit/extension-kong/config"
-	"github.com/steadybit/extension-kong/utils"
 	"net/http"
 	"strings"
 )
@@ -16,9 +17,9 @@ import (
 const RouteDiscoveryEndpoint = "/kong/route/discovery"
 
 func RegisterRouteDiscoveryHandlers() {
-	utils.RegisterHttpHandler(RouteDiscoveryEndpoint, utils.GetterAsHandler(getRouteDiscoveryDescription))
-	utils.RegisterHttpHandler(RouteDiscoveryEndpoint+"/target-description", utils.GetterAsHandler(getRouteTargetDescription))
-	utils.RegisterHttpHandler(RouteDiscoveryEndpoint+"/discovered-routes", getRouteDiscoveryResults)
+	exthttp.RegisterHttpHandler(RouteDiscoveryEndpoint, exthttp.GetterAsHandler(getRouteDiscoveryDescription))
+	exthttp.RegisterHttpHandler(RouteDiscoveryEndpoint+"/target-description", exthttp.GetterAsHandler(getRouteTargetDescription))
+	exthttp.RegisterHttpHandler(RouteDiscoveryEndpoint+"/discovered-routes", getRouteDiscoveryResults)
 }
 
 func getRouteDiscoveryDescription() discovery_kit_api.DiscoveryDescription {
@@ -38,7 +39,7 @@ func getRouteTargetDescription() discovery_kit_api.TargetDescription {
 		Id:       RouteTargetID,
 		Label:    discovery_kit_api.PluralLabel{One: "Kong route", Other: "Kong routes"},
 		Category: discovery_kit_api.Ptr("API gateway"),
-		Version:  "1.1.1",
+		Version:  extbuild.GetSemverVersionStringOrUnknown(),
 		Icon:     discovery_kit_api.Ptr(RouteIcon),
 		Table: discovery_kit_api.Table{
 			Columns: []discovery_kit_api.Column{
@@ -66,7 +67,7 @@ func getRouteDiscoveryResults(w http.ResponseWriter, _ *http.Request, _ []byte) 
 	for _, instance := range config.Instances {
 		targets = append(targets, GetRouteTargets(&instance)...)
 	}
-	utils.WriteBody(w, discovery_kit_api.DiscoveredTargets{Targets: targets})
+	exthttp.WriteBody(w, discovery_kit_api.DiscoveredTargets{Targets: targets})
 }
 
 func GetRouteTargets(instance *config.Instance) []discovery_kit_api.Target {

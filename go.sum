@@ -801,12 +801,10 @@ github.com/spf13/pflag v1.0.3/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnIn
 github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
 github.com/spf13/viper v1.4.0/go.mod h1:PTJ7Z/lr49W6bUbkmS1V3by4uWynFiR9p7+dSq/yZzE=
 github.com/spf13/viper v1.7.0/go.mod h1:8WkrPz2fc9jxqZNCJI/76HCieCp4Q8HaLFoCha5qpdg=
-github.com/steadybit/action-kit/go/action_kit_api/v2 v2.4.5 h1:9J5u9bWoZ7Afn2OKE/K1vLvkw5pGrdyaHGf6d+8GgrE=
-github.com/steadybit/action-kit/go/action_kit_api/v2 v2.4.5/go.mod h1:4yGr/DzsHpw6elju1XHCeUsY/qoqNTcLY3ytgnNcMt8=
+github.com/steadybit/action-kit/go/action_kit_api/v2 v2.5.1 h1:gW6IttJ33Tu/ynn2cV5WdrpD5l+ODH+DFTc9r7slJCM=
+github.com/steadybit/action-kit/go/action_kit_api/v2 v2.5.1/go.mod h1:4yGr/DzsHpw6elju1XHCeUsY/qoqNTcLY3ytgnNcMt8=
 github.com/steadybit/action-kit/go/action_kit_sdk v1.0.2 h1:pYpKm1BaRY296OH56oMXTfUQjEJLwE2e6ESxRoBuyME=
 github.com/steadybit/action-kit/go/action_kit_sdk v1.0.2/go.mod h1:mTMPHv8eCORj2cVHL3BMDEcUlU86A0mRyaCNsVi25AQ=
-github.com/steadybit/attack-kit/go/attack_kit_api v0.5.0 h1:pFBriZjr55uVi0Tzdwh6GMS2N9QqPDDWJJWxGzI3vZA=
-github.com/steadybit/attack-kit/go/attack_kit_api v0.5.0/go.mod h1:Om4Mnj5sTU1FgmDhJXBu7Ezfkz/UBz6zEGm6nqkIpAY=
 github.com/steadybit/discovery-kit/go/discovery_kit_api v1.3.0 h1:HwvovoYbAYpJ5PnMeiJUgrjwVkV5EpveAjeHH9pPDMQ=
 github.com/steadybit/discovery-kit/go/discovery_kit_api v1.3.0/go.mod h1:OnIfjrBhmMQCYxriHmr8mT1wCpvqIZxwBHWnanFhgNA=
 github.com/steadybit/extension-kit v1.7.10 h1:9u/709e9dYkiZgEsTyEwfFhZUMGq/OsP1Zxdm8BNprQ=

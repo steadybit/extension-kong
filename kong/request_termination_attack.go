@@ -4,15 +4,20 @@
 package kong
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
 	"github.com/kong/go-kong/kong"
-	"github.com/mitchellh/mapstructure"
-	"github.com/steadybit/attack-kit/go/attack_kit_api"
+	"github.com/steadybit/action-kit/go/action_kit_api/v2"
+	"github.com/steadybit/action-kit/go/action_kit_sdk"
+	extension_kit "github.com/steadybit/extension-kit"
+	"github.com/steadybit/extension-kit/extbuild"
+	"github.com/steadybit/extension-kit/extutil"
 	"github.com/steadybit/extension-kong/config"
 	"github.com/steadybit/extension-kong/utils"
-	"net/http"
 )
+
+type RequestTerminationAction struct {
+}
 
 type RequestTerminationState struct {
 	PluginIds    []string
@@ -21,48 +26,128 @@ type RequestTerminationState struct {
 	RouteId      string
 }
 
-func prepareRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte) {
-	state, err := PrepareRequestTermination(body)
-	if err != nil {
-		utils.WriteError(w, *err)
-	} else {
-		utils.WriteAttackState(w, *state)
+func NewRequestTerminationAction() action_kit_sdk.Action[RequestTerminationState] {
+	return RequestTerminationAction{}
+}
+
+var _ action_kit_sdk.Action[RequestTerminationState] = (*RequestTerminationAction)(nil)
+var _ action_kit_sdk.ActionWithStop[RequestTerminationState] = (*RequestTerminationAction)(nil)
+
+func (f RequestTerminationAction) NewEmptyState() RequestTerminationState {
+	return RequestTerminationState{}
+}
+
+func (f RequestTerminationAction) Describe() action_kit_api.ActionDescription {
+	return action_kit_api.ActionDescription{
+		Id:          "com.github.steadybit.extension_kong.routes.request_termination",
+		Label:       "Terminate requests",
+		Description: "Leverage the Kong request-termination plugin to inject HTTP failures for specific Kong routes.",
+		Version:     extbuild.GetSemverVersionStringOrUnknown(),
+		Icon:        extutil.Ptr(RouteIcon),
+		TargetSelection: extutil.Ptr(action_kit_api.TargetSelection{
+			TargetType: RouteTargetID,
+			SelectionTemplates: extutil.Ptr([]action_kit_api.TargetSelectionTemplate{
+				{
+					Label:       "by route-id",
+					Description: extutil.Ptr("Find route by id"),
+					Query:       "kong.route.id=\"\"",
+				},
+				{
+					Label:       "by route-name",
+					Description: extutil.Ptr("Find route by name"),
+					Query:       "kong.route.name=\"\"",
+				},
+			}),
+		}),
+		Category:    extutil.Ptr("network"),
+		TimeControl: action_kit_api.External,
+		Kind:        action_kit_api.Attack,
+		Parameters: []action_kit_api.ActionParameter{
+			{
+				Label:        "Duration",
+				Name:         "duration",
+				Type:         "duration",
+				Advanced:     extutil.Ptr(false),
+				Required:     extutil.Ptr(true),
+				DefaultValue: extutil.Ptr("30s"),
+			},
+			{
+				Label:       "Consumer Username or ID",
+				Name:        "consumer",
+				Description: extutil.Ptr("You may optionally define for which Kong consumer the traffic should be impacted."),
+				Type:        "string",
+				Advanced:    extutil.Ptr(false),
+				Required:    extutil.Ptr(false),
+			},
+			{
+				Label:        "Message",
+				Name:         "message",
+				Type:         "string",
+				Advanced:     extutil.Ptr(true),
+				DefaultValue: extutil.Ptr("Error injected through the Steadybit Kong extension (through the request-termination Kong plugin)"),
+			},
+			{
+				Label:       "Content-Type",
+				Name:        "contentType",
+				Description: extutil.Ptr("Content-Type response header to be returned for terminated requests."),
+				Type:        "string",
+				Advanced:    extutil.Ptr(true),
+			},
+			{
+				Label:       "Body",
+				Name:        "body",
+				Description: extutil.Ptr("The raw response body to be returned for terminated requests. This is mutually exclusive with the message parameter. A body parameter takes precedence over the message parameter."),
+				Type:        "string",
+				Advanced:    extutil.Ptr(true),
+			},
+			{
+				Label:        "HTTP status code",
+				Name:         "status",
+				Type:         "integer",
+				Advanced:     extutil.Ptr(true),
+				DefaultValue: extutil.Ptr("500"),
+			},
+			{
+				Label:       "Trigger",
+				Name:        "trigger",
+				Type:        "string",
+				Description: extutil.Ptr("When not set, the plugin always activates. When set to a string, the plugin will activate exclusively on requests containing either a header or a query parameter that is named the string."),
+				Advanced:    extutil.Ptr(true),
+			},
+		},
+		Prepare: action_kit_api.MutatingEndpointReference{},
+		Start:   action_kit_api.MutatingEndpointReference{},
+		Stop:    extutil.Ptr(action_kit_api.MutatingEndpointReference{}),
 	}
 }
 
-func PrepareRequestTermination(body []byte) (*RequestTerminationState, *attack_kit_api.AttackKitError) {
-	var request attack_kit_api.PrepareAttackRequestBody
-	err := json.Unmarshal(body, &request)
-	if err != nil {
-		return nil, attack_kit_api.Ptr(utils.ToError("Failed to parse request body", err))
-	}
-
+func (f RequestTerminationAction) Prepare(_ context.Context, state *RequestTerminationState, request action_kit_api.PrepareActionRequestBody) (*action_kit_api.PrepareResult, error) {
 	instanceName := findFirstValue(request.Target.Attributes, "kong.instance.name")
 	if instanceName == nil {
-		return nil, attack_kit_api.Ptr(utils.ToError("Missing target attribute 'kong.instance.name'", nil))
+		return nil, extension_kit.ToError("Missing target attribute 'kong.instance.name'", nil)
 	}
 
 	instance, err := config.FindInstanceByName(*instanceName)
 	if err != nil {
-		return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to find a configured instance named '%s'", *instanceName), err))
+		return nil, extension_kit.ToError(fmt.Sprintf("Failed to find a configured instance named '%s'", *instanceName), err)
 	}
 
 	requestedServiceId := findFirstValue(request.Target.Attributes, "kong.service.id")
 	requestedRouteId := findFirstValue(request.Target.Attributes, "kong.route.id")
 	if requestedServiceId == nil {
-		return nil, attack_kit_api.Ptr(utils.ToError("Missing target attribute 'kong.service.id' required.", nil))
+		return nil, extension_kit.ToError("Missing target attribute 'kong.service.id' required.", nil)
 	}
 
 	service, err := instance.FindService(requestedServiceId)
 	if err != nil {
-		return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to find service '%s' within Kong", *requestedServiceId), err))
+		return nil, extension_kit.ToError(fmt.Sprintf("Failed to find service '%s' within Kong", *requestedServiceId), err)
 	}
 
 	var route *kong.Route
 	if requestedRouteId != nil {
 		route, err = instance.FindRoute(service, requestedRouteId)
 		if err != nil {
-			return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to find route '%s' within Kong", *requestedRouteId), err))
+			return nil, extension_kit.ToError(fmt.Sprintf("Failed to find route '%s' within Kong", *requestedRouteId), err)
 		}
 	}
 
@@ -72,13 +157,13 @@ func PrepareRequestTermination(body []byte) (*RequestTerminationState, *attack_k
 		if len(configuredConsumer) > 0 {
 			consumer, err = instance.FindConsumer(&configuredConsumer)
 			if err != nil {
-				return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to find consumer '%s' within Kong", configuredConsumer), err))
+				return nil, extension_kit.ToError(fmt.Sprintf("Failed to find consumer '%s' within Kong", configuredConsumer), err)
 			}
 		}
 	}
 
 	kongConfig := kong.Configuration{
-		"status_code": request.Config["status"].(float64),
+		"status_code": request.Config["status"].(int),
 	}
 
 	if isDefinedString(request.Config["body"]) {
@@ -96,8 +181,8 @@ func PrepareRequestTermination(body []byte) (*RequestTerminationState, *attack_k
 	}
 
 	plugin, err := instance.CreatePluginAtAnyLevel(&kong.Plugin{
-		Name:    utils.String("request-termination"),
-		Enabled: utils.Bool(false),
+		Name:    extutil.Ptr("request-termination"),
+		Enabled: extutil.Ptr(false),
 		Tags: utils.Strings([]string{
 			"created-by=steadybit",
 		}),
@@ -107,7 +192,7 @@ func PrepareRequestTermination(body []byte) (*RequestTerminationState, *attack_k
 		Config:   kongConfig,
 	})
 	if err != nil {
-		return nil, attack_kit_api.Ptr(utils.ToError("Failed to create plugin", err))
+		return nil, extension_kit.ToError("Failed to create plugin", err)
 	}
 
 	var serviceId string
@@ -119,49 +204,18 @@ func PrepareRequestTermination(body []byte) (*RequestTerminationState, *attack_k
 		routeId = *route.ID
 	}
 
-	return attack_kit_api.Ptr(RequestTerminationState{
-		InstanceName: instance.Name,
-		ServiceId:    serviceId,
-		RouteId:      routeId,
-		PluginIds:    []string{*plugin.ID},
-	}), nil
+	state.InstanceName = instance.Name
+	state.ServiceId = serviceId
+	state.RouteId = routeId
+	state.PluginIds = []string{*plugin.ID}
+
+	return nil, nil
 }
 
-func isDefinedString(v interface{}) bool {
-	return v != nil && len(v.(string)) > 0
-}
-
-func decodeAttackState(attackState attack_kit_api.AttackState) (RequestTerminationState, error) {
-	var result RequestTerminationState
-	err := mapstructure.Decode(attackState, &result)
-	return result, err
-}
-
-func startRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte) {
-	state, err := StartRequestTermination(body)
-	if err != nil {
-		utils.WriteError(w, *err)
-	} else {
-		utils.WriteAttackState(w, *state)
-	}
-}
-
-func StartRequestTermination(body []byte) (*RequestTerminationState, *attack_kit_api.AttackKitError) {
-	var request attack_kit_api.StartAttackRequestBody
-	err := json.Unmarshal(body, &request)
-	if err != nil {
-		return nil, attack_kit_api.Ptr(utils.ToError("Failed to parse request body", err))
-	}
-
-	var state RequestTerminationState
-	err = utils.DecodeAttackState(request.State, &state)
-	if err != nil {
-		return nil, attack_kit_api.Ptr(utils.ToError("Failed to parse attack state", err))
-	}
-
+func (f RequestTerminationAction) Start(_ context.Context, state *RequestTerminationState) (*action_kit_api.StartResult, error) {
 	instance, err := config.FindInstanceByName(state.InstanceName)
 	if err != nil {
-		return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to find a configured instance named '%s'", state.InstanceName), err))
+		return nil, extension_kit.ToError(fmt.Sprintf("Failed to find a configured instance named '%s'", state.InstanceName), err)
 	}
 
 	for _, pluginId := range state.PluginIds {
@@ -169,48 +223,28 @@ func StartRequestTermination(body []byte) (*RequestTerminationState, *attack_kit
 		if state.RouteId != "" {
 			_, err = instance.UpdatePluginForRoute(&state.RouteId, &kong.Plugin{
 				ID:      &pluginId,
-				Enabled: utils.Bool(true),
+				Enabled: extutil.Ptr(true),
 			})
 			if err != nil {
-				return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s' at route level", pluginId), err))
+				return nil, extension_kit.ToError(fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s' at route level", pluginId), err)
 			}
 		} else if state.ServiceId != "" {
 			_, err = instance.UpdatePluginForService(&state.ServiceId, &kong.Plugin{
 				ID:      &pluginId,
-				Enabled: utils.Bool(true),
+				Enabled: extutil.Ptr(true),
 			})
 			if err != nil {
-				return nil, attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s' at service level", pluginId), err))
+				return nil, extension_kit.ToError(fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s' at service level", pluginId), err)
 			}
 		}
-
 	}
-
-	return &state, nil
+	return nil, nil
 }
 
-func stopRequestTermination(w http.ResponseWriter, _ *http.Request, body []byte) {
-	err := StopRequestTermination(body)
-	if err != nil {
-		utils.WriteError(w, *err)
-	}
-}
-
-func StopRequestTermination(body []byte) *attack_kit_api.AttackKitError {
-	var stopAttackRequest attack_kit_api.StopAttackRequestBody
-	err := json.Unmarshal(body, &stopAttackRequest)
-	if err != nil {
-		return attack_kit_api.Ptr(utils.ToError("Failed to parse request body", err))
-	}
-
-	state, err := decodeAttackState(stopAttackRequest.State)
-	if err != nil {
-		return attack_kit_api.Ptr(utils.ToError("Failed to decode attack state", err))
-	}
-
+func (f RequestTerminationAction) Stop(_ context.Context, state *RequestTerminationState) (*action_kit_api.StopResult, error) {
 	instance, err := config.FindInstanceByName(state.InstanceName)
 	if err != nil {
-		return attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to find a configured instance named '%s'", state.InstanceName), err))
+		return nil, extension_kit.ToError(fmt.Sprintf("Failed to find a configured instance named '%s'", state.InstanceName), err)
 	}
 
 	for _, pluginId := range state.PluginIds {
@@ -222,11 +256,15 @@ func StopRequestTermination(body []byte) *attack_kit_api.AttackKitError {
 			err = instance.DeletePluginForService(&state.ServiceId, &pluginId)
 		}
 		if err != nil {
-			return attack_kit_api.Ptr(utils.ToError(fmt.Sprintf("Failed to delete plugin within Kong for plugin ID '%s' at %s level", pluginId, level), err))
+			return nil, extension_kit.ToError(fmt.Sprintf("Failed to delete plugin within Kong for plugin ID '%s' at %s level", pluginId, level), err)
 		}
 	}
 
-	return nil
+	return nil, nil
+}
+
+func isDefinedString(v interface{}) bool {
+	return v != nil && len(v.(string)) > 0
 }
 
 func findFirstValue(attributes map[string][]string, key string) *string {

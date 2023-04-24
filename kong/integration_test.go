@@ -14,9 +14,6 @@ func TestWithTestContainers(t *testing.T) {
 			Name: "prepare fails on unknown instance",
 			Test: testPrepareFailsWhenInstanceIsUnknown,
 		}, {
-			Name: "prepare does not panic on broken JSON",
-			Test: testPrepareNoPanicOnBrokenJson,
-		}, {
 			Name: "prepare configures disabled plugin",
 			Test: testPrepareConfiguresDisabledPlugin,
 		}, {

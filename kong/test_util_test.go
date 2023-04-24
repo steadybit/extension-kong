@@ -7,8 +7,8 @@ import (
 	"context"
 	"github.com/kong/go-kong/kong"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
+	"github.com/steadybit/extension-kit/extutil"
 	"github.com/steadybit/extension-kong/config"
-	"github.com/steadybit/extension-kong/utils"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -31,7 +31,7 @@ func getTestRoute(service *kong.Service) *kong.Route {
 		Hosts:   []*string{discovery_kit_api.Ptr("server1")},
 		Paths:   []*string{discovery_kit_api.Ptr("/products")},
 		Tags:    []*string{discovery_kit_api.Ptr("test")},
-		Methods: []*string{utils.String("GET")},
+		Methods: []*string{extutil.Ptr("GET")},
 	}
 }
 
