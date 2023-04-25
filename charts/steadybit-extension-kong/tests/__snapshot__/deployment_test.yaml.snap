@@ -30,7 +30,7 @@ manifest should match snapshot with TLS:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
-              image: steadybit/extension-kong:latest
+              image: ghcr.io/steadybit/extension-kong:latest
               imagePullPolicy: Always
               livenessProbe:
                 httpGet:
@@ -91,7 +91,7 @@ manifest should match snapshot with mutual TLS:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
-              image: steadybit/extension-kong:latest
+              image: ghcr.io/steadybit/extension-kong:latest
               imagePullPolicy: Always
               livenessProbe:
                 httpGet:
@@ -153,7 +153,7 @@ manifest should match snapshot without TLS:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
-              image: steadybit/extension-kong:latest
+              image: ghcr.io/steadybit/extension-kong:latest
               imagePullPolicy: Always
               livenessProbe:
                 httpGet:

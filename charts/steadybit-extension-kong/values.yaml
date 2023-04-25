@@ -14,7 +14,7 @@ kong:
 
 image:
   # image.name -- The container image to use for the steadybit Kong extension.
-  name: steadybit/extension-kong
+  name: ghcr.io/steadybit/extension-kong
   # image.tag -- tag name of the extension-kong container image to use.
   # See https://hub.docker.com/r/steadybit/extension-kong for all tags.
   tag: latest
