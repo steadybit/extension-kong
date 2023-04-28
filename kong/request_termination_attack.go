@@ -11,6 +11,7 @@ import (
 	"github.com/steadybit/action-kit/go/action_kit_sdk"
 	extension_kit "github.com/steadybit/extension-kit"
 	"github.com/steadybit/extension-kit/extbuild"
+	"github.com/steadybit/extension-kit/extconversion"
 	"github.com/steadybit/extension-kit/extutil"
 	"github.com/steadybit/extension-kong/config"
 	"github.com/steadybit/extension-kong/utils"
@@ -24,6 +25,15 @@ type RequestTerminationState struct {
 	InstanceName string
 	ServiceId    string
 	RouteId      string
+}
+
+type RequestTerminationConfig struct {
+	Consumer    string
+	Status      int
+	Body        string
+	Message     string
+	ContentType string
+	Trigger     string
 }
 
 func NewRequestTerminationAction() action_kit_sdk.Action[RequestTerminationState] {
@@ -151,9 +161,15 @@ func (f RequestTerminationAction) Prepare(_ context.Context, state *RequestTermi
 		}
 	}
 
+	var config RequestTerminationConfig
+	err = extconversion.Convert(request.Config, &config)
+	if err != nil {
+		return nil, err
+	}
+
 	var consumer *kong.Consumer = nil
-	if request.Config["consumer"] != nil {
-		configuredConsumer := request.Config["consumer"].(string)
+	if config.Consumer != "" {
+		configuredConsumer := config.Consumer
 		if len(configuredConsumer) > 0 {
 			consumer, err = instance.FindConsumer(&configuredConsumer)
 			if err != nil {
@@ -163,21 +179,21 @@ func (f RequestTerminationAction) Prepare(_ context.Context, state *RequestTermi
 	}
 
 	kongConfig := kong.Configuration{
-		"status_code": request.Config["status"].(int),
+		"status_code": config.Status,
 	}
 
-	if isDefinedString(request.Config["body"]) {
-		kongConfig["body"] = request.Config["body"]
-	} else if isDefinedString(request.Config["message"]) {
-		kongConfig["message"] = request.Config["message"]
+	if isDefinedString(config.Body) {
+		kongConfig["body"] = config.Body
+	} else if isDefinedString(config.Message) {
+		kongConfig["message"] = config.Message
 	}
 
-	if isDefinedString(request.Config["contentType"]) {
-		kongConfig["content_type"] = request.Config["contentType"]
+	if isDefinedString(config.ContentType) {
+		kongConfig["content_type"] = config.ContentType
 	}
 
-	if isDefinedString(request.Config["trigger"]) {
-		kongConfig["trigger"] = request.Config["trigger"]
+	if isDefinedString(config.Trigger) {
+		kongConfig["trigger"] = config.Trigger
 	}
 
 	plugin, err := instance.CreatePluginAtAnyLevel(&kong.Plugin{

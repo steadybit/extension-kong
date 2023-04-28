@@ -7,6 +7,7 @@ import (
 	"context"
 	"github.com/steadybit/action-kit/go/action_kit_api/v2"
 	"github.com/steadybit/action-kit/go/action_kit_sdk"
+	"github.com/steadybit/extension-kit/extutil"
 	"github.com/steadybit/extension-kong/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,14 +16,14 @@ import (
 
 func testPrepareFailsWhenServiceIsMissing(t *testing.T, instance *config.Instance) {
 	// Given
-	requestBody := action_kit_api.PrepareActionRequestBody{
+	requestBody := extutil.JsonMangle(action_kit_api.PrepareActionRequestBody{
 		Target: &action_kit_api.Target{
 			Attributes: map[string][]string{
 				"kong.instance.name": {instance.Name},
 				"kong.service.id":    {"unknown"},
 			},
 		},
-	}
+	})
 
 	action := NewRequestTerminationAction()
 	state := action.NewEmptyState()
@@ -35,14 +36,14 @@ func testPrepareFailsWhenServiceIsMissing(t *testing.T, instance *config.Instanc
 
 func testPrepareFailsWhenInstanceIsUnknown(t *testing.T, _ *config.Instance) {
 	// Given
-	requestBody := action_kit_api.PrepareActionRequestBody{
+	requestBody := extutil.JsonMangle(action_kit_api.PrepareActionRequestBody{
 		Target: &action_kit_api.Target{
 			Attributes: map[string][]string{
 				"kong.instance.name": {"unknown"},
 				"kong.service.id":    {"unknown"},
 			},
 		},
-	}
+	})
 	action := NewRequestTerminationAction()
 	state := action.NewEmptyState()
 
@@ -55,7 +56,7 @@ func testPrepareFailsWhenInstanceIsUnknown(t *testing.T, _ *config.Instance) {
 func testPrepareConfiguresDisabledPlugin(t *testing.T, instance *config.Instance) {
 	// Given
 	service := configureService(t, instance, getTestService())
-	requestBody := action_kit_api.PrepareActionRequestBody{
+	requestBody := extutil.JsonMangle(action_kit_api.PrepareActionRequestBody{
 		Config: map[string]interface{}{
 			"status":  200,
 			"message": "Hello from Kong extension",
@@ -66,7 +67,7 @@ func testPrepareConfiguresDisabledPlugin(t *testing.T, instance *config.Instance
 				"kong.service.id":    {*service.ID},
 			},
 		},
-	}
+	})
 
 	client, err := instance.GetClient()
 	require.NoError(t, err)
@@ -97,7 +98,7 @@ func testPrepareConfiguresDisabledPlugin(t *testing.T, instance *config.Instance
 func testPrepareFailsOnUnknownConsumer(t *testing.T, instance *config.Instance) {
 	// Given
 	service := configureService(t, instance, getTestService())
-	requestBody := action_kit_api.PrepareActionRequestBody{
+	requestBody := extutil.JsonMangle(action_kit_api.PrepareActionRequestBody{
 		Config: map[string]interface{}{
 			"status":   200,
 			"message":  "Hello from Kong extension",
@@ -109,7 +110,7 @@ func testPrepareFailsOnUnknownConsumer(t *testing.T, instance *config.Instance) 
 				"kong.service.id":    {*service.ID},
 			},
 		},
-	}
+	})
 	action := NewRequestTerminationAction()
 	state := action.NewEmptyState()
 
@@ -125,7 +126,7 @@ func testPrepareWithConsumer(t *testing.T, instance *config.Instance) {
 	// Given
 	service := configureService(t, instance, getTestService())
 	consumer := configureConsumer(t, instance, getTestConsumer())
-	requestBody := action_kit_api.PrepareActionRequestBody{
+	requestBody := extutil.JsonMangle(action_kit_api.PrepareActionRequestBody{
 		Config: map[string]interface{}{
 			"status":      200,
 			"message":     "Hello from Kong extension",
@@ -140,7 +141,7 @@ func testPrepareWithConsumer(t *testing.T, instance *config.Instance) {
 				"kong.service.id":    {*service.ID},
 			},
 		},
-	}
+	})
 
 	action := NewRequestTerminationAction()
 	state := action.NewEmptyState()
@@ -167,7 +168,7 @@ func testPrepareWithRoute(t *testing.T, instance *config.Instance) {
 	// Given
 	service := configureService(t, instance, getTestService())
 	route := configureRoute(t, instance, getTestRoute(service))
-	requestBody := action_kit_api.PrepareActionRequestBody{
+	requestBody := extutil.JsonMangle(action_kit_api.PrepareActionRequestBody{
 		Config: map[string]interface{}{
 			"status":      200,
 			"message":     "Hello from Kong extension",
@@ -182,7 +183,7 @@ func testPrepareWithRoute(t *testing.T, instance *config.Instance) {
 				"kong.service.id":    {*service.ID},
 			},
 		},
-	}
+	})
 
 	action := NewRequestTerminationAction()
 	state := action.NewEmptyState()
