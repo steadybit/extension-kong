@@ -162,9 +162,8 @@ func (f RequestTerminationAction) Prepare(_ context.Context, state *RequestTermi
 	}
 
 	var config RequestTerminationConfig
-	err = extconversion.Convert(request.Config, &config)
-	if err != nil {
-		return nil, err
+	if err := extconversion.Convert(request.Config, &config); err != nil {
+		return nil, extension_kit.ToError("Failed to unmarshal the config.", err)
 	}
 
 	var consumer *kong.Consumer = nil
