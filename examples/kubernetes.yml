@@ -25,7 +25,7 @@ spec:
         app.kubernetes.io/name: steadybit-extension-kong
     spec:
       containers:
-        - image: steadybit/extension-kong:main
+        - image: ghcr.io/steadybit/extension-kong:main
           imagePullPolicy: Always
           name: steadybit-extension-kong
           env:
