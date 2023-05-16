@@ -9,7 +9,7 @@ docker build -t steadybit/extension-kong .
 docker run -d -p 8084:8084 --name extension-kong \
 	 -e "STEADYBIT_EXTENSION_KONG_INSTANCE_0_NAME=default" \
 	 -e "STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN=http://kong:8001" \
-	 steadybit/extension-kong
+	 ghcr.io/steadybit/extension-kong
 ```
 
 ## Running Kong

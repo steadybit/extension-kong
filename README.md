@@ -4,6 +4,8 @@
 
 A [Steadybit](https://www.steadybit.com/) attack implementation to inject HTTP faults into [Kong API gateway](https://konghq.com/).
 
+Learn about the capabilities of this extension in our [Reliability Hub](https://hub.steadybit.com/extension/com.github.steadybit.extension_kong).
+
 ## Prerequisites
 
 - Kong needs to have the [request-termination](https://docs.konghq.com/hub/kong-inc/request-termination/#example-use-cases) plugin installed (typically
@@ -11,35 +13,50 @@ A [Steadybit](https://www.steadybit.com/) attack implementation to inject HTTP f
 
 ## Configuration
 
-| Environment Variable                                 |                                                                                                  |
-|------------------------------------------------------|--------------------------------------------------------------------------------------------------|
-| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_NAME`         | Name of the kong instance                                                                        |
-| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_ORIGIN`       | Url of the kong admin interface                                                                  |
-| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_HEADER_KEY`   | Optional header key to send to the Kong admin API. Typically used for authentication purposes.   |
-| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_HEADER_VALUE` | Optional header value to send to the Kong admin API. Typically used for authentication purposes. |
+| Environment Variable                                 | Helm value         | Meaning                                                                                          | required |
+|------------------------------------------------------|--------------------|--------------------------------------------------------------------------------------------------|----------|
+| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_NAME`         | `kong.name`        | Name of the kong instance                                                                        | yes      |
+| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_ORIGIN`       | `kong.origin`      | Url of the kong admin interface                                                                  | yes      |
+| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_HEADER_KEY`   | `kong.headerKey`   | Optional header key to send to the Kong admin API. Typically used for authentication purposes.   | no       |
+| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_HEADER_VALUE` | `kong.headerValue` | Optional header value to send to the Kong admin API. Typically used for authentication purposes. | no       |
 
 The extension supports all environment variables provided by [steadybit/extension-kit](https://github.com/steadybit/extension-kit#environment-variables).
 
-## Deployment
+## Installation
 
 We recommend that you deploy the extension with our [official Helm chart](https://github.com/steadybit/extension-kong/tree/main/charts/steadybit-extension-kong).
 
-## Agent Configuration
+### Helm
 
-The Steadybit agent needs to be configured to interact with the Kong extension by adding the following environment variables:
+```sh
+helm repo add steadybit https://steadybit.github.io/extension-kong
+helm repo update
 
-```shell
-# Make sure to adapt the URLs and indices in the environment variables names as necessary for your setup
-
-STEADYBIT_AGENT_ACTIONS_EXTENSIONS_0_URL=http://steadybit-extension-kong.steadybit-extension.svc.cluster.local:8084
-STEADYBIT_AGENT_DISCOVERIES_EXTENSIONS_0_URL=http://steadybit-extension-kong.steadybit-extension.svc.cluster.local:8084
+helm upgrade steadybit-extension-kong \
+  --install \\
+  --wait \\
+  --timeout 5m0s \\
+  --create-namespace \\
+  --namespace steadybit-extension \\
+  --set kong.name="{{SYMBOLIC_NAME}}" \\
+  --set kong.origin="{{KONG_API_SERVER_ORIGIN}}" \\
+  steadybit/steadybit-extension-kong
 ```
 
-When leveraging our official Helm charts, you can set the configuration through additional environment variables on the agent:
+### Docker
 
+You may alternatively start the Docker container manually.
+
+```sh
+docker run \\
+  --env STEADYBIT_LOG_LEVEL=info \\
+  --env STEADYBIT_EXTENSION_KONG_INSTANCE_0_NAME="{{SYMBOLIC_NAME}}" \\
+  --env STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN="{{KONG_API_SERVER_ORIGIN}}" \\
+  --expose 8084 \\
+  ghcr.io/steadybit/extension-kong:latest
 ```
---set agent.env[0].name=STEADYBIT_AGENT_ACTIONS_EXTENSIONS_0_URL \
---set agent.env[0].value="http://steadybit-extension-kong.steadybit-extension.svc.cluster.local:8084" \
---set agent.env[1].name=STEADYBIT_AGENT_DISCOVERIES_EXTENSIONS_0_URL \
---set agent.env[1].value="http://steadybit-extension-kong.steadybit-extension.svc.cluster.local:8084"
-```
+
+## Register the extension
+
+Make sure to register the extension at the steadybit platform. Please refer to
+the [documentation](https://docs.steadybit.com/integrate-with-steadybit/extensions/extension-installation) for more information.
