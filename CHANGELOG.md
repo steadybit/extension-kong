@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.0.0
+
+ - Refactoring using `action_kit_sdk`
+ - Read only file system
+
 ## v1.7.0
 
  - Print build information on extension startup.
