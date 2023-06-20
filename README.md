@@ -50,7 +50,7 @@ You may alternatively start the Docker container manually.
 ```sh
 docker run \\
   --env STEADYBIT_LOG_LEVEL=info \\
-  --env STEADYBIT_EXTENSION_KONG_INSTANCE_0_NAME="{{SYMBOLIC_NAME}}" \\
+  --env STEADYBIT_LOG_LEVEL=info \\
   --env STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN="{{KONG_API_SERVER_ORIGIN}}" \\
   --expose 8084 \\
   ghcr.io/steadybit/extension-kong:latest
