@@ -5,7 +5,7 @@ module github.com/steadybit/extension-kong
 
 go 1.20
 
-require github.com/kong/go-kong v0.43.0
+require github.com/kong/go-kong v0.44.0
 
 require (
 	github.com/rs/zerolog v1.29.1
