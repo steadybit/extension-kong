@@ -1,0 +1,8 @@
+/var/log/steadybit-extension-kong.log {
+    copytruncate
+    size 10m
+    create 700 steadybit steadybit
+    dateext
+    rotate 5
+    compress
+}

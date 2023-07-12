@@ -47,8 +47,7 @@ chartlint:
 ## build: build the extension
 .PHONY: build
 build:
-	go mod verify
-	go build -o=./extension
+	goreleaser build --clean --snapshot --single-target -o extension
 
 ## run: run the extension
 .PHONY: run
@@ -58,4 +57,8 @@ run: tidy build
 ## container: build the container image
 .PHONY: container
 container:
-	docker build -t extension-kong:latest .
+		docker buildx build --build-arg BUILD_WITH_COVERAGE="true" -t extension-kong:latest --output=type=docker .
+
+.PHONY: linuxpkg
+linuxpkg:
+	goreleaser release --clean --snapshot --skip-sign
