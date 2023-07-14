@@ -43,7 +43,7 @@ nfpms:
       - rpm
     maintainer: "Johannes Edmeier <johannes.edmeier@steadybit.com>"
     description: |
-      Steadybit Extension Container
+      Steadybit Extension Kong
     vendor: "steadybit GmbH"
     homepage: "https://steadybit.com"
     license: "Steadybit license"
