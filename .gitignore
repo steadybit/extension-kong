@@ -1,4 +1,5 @@
-extension-kong
-
-*.iml
+/extension
 /coverage.out
+/e2e/e2e-coverage-docker.out
+/gpg.key
+/dist

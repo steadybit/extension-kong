@@ -1,0 +1,18 @@
+[Unit]
+Description="steadybit extension kong"
+After=syslog.target
+
+[Service]
+Type=simple
+ExecStart=/opt/steadybit/extension-kong/extension-kong
+EnvironmentFile=/etc/steadybit/extension-kong
+User=steadybit
+Group=steadybit
+SuccessExitStatus=0 143
+Restart=on-failure
+RestartSec=5s
+StandardOutput=append:/var/log/steadybit-extension-kong.log
+StandardError=append:/var/log/steadybit-extension-kong.log
+
+[Install]
+WantedBy=multi-user.target
