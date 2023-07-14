@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.1
+
+ - add linux package build
+
 ## v2.0.0
 
  - Refactoring using `action_kit_sdk`
