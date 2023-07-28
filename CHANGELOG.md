@@ -2,6 +2,10 @@
 
 ## v2.0.1
 
+- update dependencies
+
+## v2.0.1
+
  - add linux package build
 
 ## v2.0.0
