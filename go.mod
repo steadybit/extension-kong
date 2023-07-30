@@ -8,7 +8,7 @@ go 1.20
 require github.com/kong/go-kong v0.46.0
 
 require (
-	github.com/rs/zerolog v1.29.1
+	github.com/rs/zerolog v1.30.0
 	github.com/steadybit/action-kit/go/action_kit_api/v2 v2.6.3
 	github.com/steadybit/action-kit/go/action_kit_sdk v1.1.4
 	github.com/steadybit/discovery-kit/go/discovery_kit_api v1.3.0
@@ -17,12 +17,8 @@ require (
 	github.com/testcontainers/testcontainers-go v0.21.0
 )
 
-replace (
-	github.com/containerd/containerd v1.5.9 => github.com/containerd/containerd v1.6.6
-	github.com/containerd/containerd v1.6.1 => github.com/containerd/containerd v1.6.6
-	github.com/docker/distribution v2.7.1+incompatible => github.com/distribution/distribution v2.8.1+incompatible
-	github.com/opencontainers/runc v1.0.2 => github.com/opencontainers/runc v1.1.3
-)
+// Workaround for https://github.com/testcontainers/testcontainers-go/issues/1359
+replace github.com/docker/docker v23.0.5+incompatible => github.com/docker/docker v23.0.7-0.20230730020554-801e90549aac+incompatible
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
