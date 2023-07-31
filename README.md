@@ -29,18 +29,18 @@ We recommend that you deploy the extension with our [official Helm chart](https:
 ### Helm
 
 ```sh
-helm repo add steadybit https://steadybit.github.io/extension-kong
+helm repo add steadybit-extension-kong https://steadybit.github.io/extension-kong
 helm repo update
 
 helm upgrade steadybit-extension-kong \
-  --install \\
-  --wait \\
-  --timeout 5m0s \\
-  --create-namespace \\
-  --namespace steadybit-extension \\
-  --set kong.name="{{SYMBOLIC_NAME}}" \\
-  --set kong.origin="{{KONG_API_SERVER_ORIGIN}}" \\
-  steadybit/steadybit-extension-kong
+  --install \
+  --wait \
+  --timeout 5m0s \
+  --create-namespace \
+  --namespace steadybit-extension \
+  --set kong.name="{{SYMBOLIC_NAME}}" \
+  --set kong.origin="{{KONG_API_SERVER_ORIGIN}}" \
+  steadybit-extension-kong/steadybit-extension-kong
 ```
 
 ### Docker
@@ -48,11 +48,11 @@ helm upgrade steadybit-extension-kong \
 You may alternatively start the Docker container manually.
 
 ```sh
-docker run \\
-  --env STEADYBIT_LOG_LEVEL=info \\
-  --env STEADYBIT_LOG_LEVEL=info \\
-  --env STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN="{{KONG_API_SERVER_ORIGIN}}" \\
-  --expose 8084 \\
+docker run \
+  --env STEADYBIT_LOG_LEVEL=info \
+  --env STEADYBIT_LOG_LEVEL=info \
+  --env STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN="{{KONG_API_SERVER_ORIGIN}}" \
+  --expose 8084 \
   ghcr.io/steadybit/extension-kong:latest
 ```
 
