@@ -27,7 +27,7 @@ func (f ServiceTerminationAction) NewEmptyState() RequestTerminationState {
 
 func (f ServiceTerminationAction) Describe() action_kit_api.ActionDescription {
 	return action_kit_api.ActionDescription{
-		Id:          "com.github.steadybit.extension_kong.request_termination",
+		Id:          "com.steadybit.extension_kong.request_termination",
 		Label:       "Terminate requests",
 		Description: "Leverage the Kong request-termination plugin to inject HTTP failures at Kong service level.",
 		Version:     extbuild.GetSemverVersionStringOrUnknown(),
