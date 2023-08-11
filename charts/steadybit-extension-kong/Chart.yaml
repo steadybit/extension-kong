@@ -1,7 +1,7 @@
 apiVersion: v2
 name: steadybit-extension-kong
 description: Steadybit Kong extension Helm chart for Kubernetes.
-version: 1.6.13
+version: 1.6.14
 appVersion: latest
 home: https://www.steadybit.com/
 icon: https://steadybit-website-assets.s3.amazonaws.com/logo-symbol-transparent.png

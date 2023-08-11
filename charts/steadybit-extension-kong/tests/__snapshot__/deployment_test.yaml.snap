@@ -48,7 +48,7 @@ manifest should match snapshot using podAnnotations and Labels:
                   memory: 128Mi
                 requests:
                   cpu: 50m
-                  memory: 64Mi
+                  memory: 32Mi
               securityContext:
                 readOnlyRootFilesystem: true
                 runAsGroup: 10000
@@ -108,7 +108,7 @@ manifest should match snapshot with TLS:
                   memory: 128Mi
                 requests:
                   cpu: 50m
-                  memory: 64Mi
+                  memory: 32Mi
               securityContext:
                 readOnlyRootFilesystem: true
                 runAsGroup: 10000
@@ -178,7 +178,7 @@ manifest should match snapshot with extra env vars:
                   memory: 128Mi
                 requests:
                   cpu: 50m
-                  memory: 64Mi
+                  memory: 32Mi
               securityContext:
                 readOnlyRootFilesystem: true
                 runAsGroup: 10000
@@ -235,7 +235,7 @@ manifest should match snapshot with extra labels:
                   memory: 128Mi
                 requests:
                   cpu: 50m
-                  memory: 64Mi
+                  memory: 32Mi
               securityContext:
                 readOnlyRootFilesystem: true
                 runAsGroup: 10000
@@ -297,7 +297,7 @@ manifest should match snapshot with mutual TLS:
                   memory: 128Mi
                 requests:
                   cpu: 50m
-                  memory: 64Mi
+                  memory: 32Mi
               securityContext:
                 readOnlyRootFilesystem: true
                 runAsGroup: 10000
@@ -373,7 +373,7 @@ manifest should match snapshot with mutual TLS using containerPaths:
                   memory: 128Mi
                 requests:
                   cpu: 50m
-                  memory: 64Mi
+                  memory: 32Mi
               securityContext:
                 readOnlyRootFilesystem: true
                 runAsGroup: 10000
@@ -429,7 +429,7 @@ manifest should match snapshot without TLS:
                   memory: 128Mi
                 requests:
                   cpu: 50m
-                  memory: 64Mi
+                  memory: 32Mi
               securityContext:
                 readOnlyRootFilesystem: true
                 runAsGroup: 10000
