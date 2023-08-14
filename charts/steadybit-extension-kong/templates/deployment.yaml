@@ -82,6 +82,7 @@ spec:
             runAsGroup: 10000
       volumes:
         {{- include "extensionlib.deployment.volumes" (list .) | nindent 8 }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
       {{- toYaml . | nindent 8 }}
