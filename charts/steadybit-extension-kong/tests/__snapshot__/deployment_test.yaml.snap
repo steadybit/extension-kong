@@ -207,6 +207,7 @@ manifest should match snapshot with extra labels:
           labels:
             app.kubernetes.io/name: steadybit-extension-kong
             steadybit.com/discovery-disabled: "true"
+            tags.datadoghq.com/service: steadybit-extension
         spec:
           containers:
             - env:
