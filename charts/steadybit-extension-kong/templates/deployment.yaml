@@ -80,6 +80,10 @@ spec:
             runAsNonRoot: true
             runAsUser: 10000
             runAsGroup: 10000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
       volumes:
         {{- include "extensionlib.deployment.volumes" (list .) | nindent 8 }}
       serviceAccountName: {{ .Values.serviceAccount.name }}
