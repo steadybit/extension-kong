@@ -4,6 +4,7 @@
 package main
 
 import (
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/steadybit/action-kit/go/action_kit_api/v2"
 	"github.com/steadybit/action-kit/go/action_kit_sdk"
@@ -12,6 +13,7 @@ import (
 	"github.com/steadybit/extension-kit/exthealth"
 	"github.com/steadybit/extension-kit/exthttp"
 	"github.com/steadybit/extension-kit/extlogging"
+	"github.com/steadybit/extension-kit/extruntime"
 	"github.com/steadybit/extension-kong/config"
 	"github.com/steadybit/extension-kong/kong"
 )
@@ -19,6 +21,7 @@ import (
 func main() {
 	extlogging.InitZeroLog()
 	extbuild.PrintBuildInformation()
+	extruntime.LogRuntimeInformation(zerolog.DebugLevel)
 
 	exthealth.SetReady(false)
 	exthealth.StartProbes(8085)
