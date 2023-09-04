@@ -5,7 +5,7 @@ module github.com/steadybit/extension-kong
 
 go 1.20
 
-require github.com/kong/go-kong v0.46.0
+require github.com/kong/go-kong v0.47.0
 
 require (
 	github.com/rs/zerolog v1.30.0
@@ -47,7 +47,7 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/google/uuid v1.3.0 // indirect
+	github.com/google/uuid v1.3.1 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
