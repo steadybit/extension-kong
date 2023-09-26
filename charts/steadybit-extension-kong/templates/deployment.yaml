@@ -62,6 +62,14 @@ spec:
                   name: {{ include "extensionlib.names.name" . }}-header
                   key: value
             {{- end }}
+            {{- if .Values.discovery.attributes.excludes.service }}
+            - name: STEADYBIT_EXTENSION_DISCOVERY_ATTRIBUTES_EXCLUDES_SERVICE
+              value: {{ join "," .Values.discovery.attributes.excludes.service | quote }}
+            {{- end }}
+            {{- if .Values.discovery.attributes.excludes.route }}
+            - name: STEADYBIT_EXTENSION_DISCOVERY_ATTRIBUTES_EXCLUDES_ROUTE
+              value: {{ join "," .Values.discovery.attributes.excludes.route | quote }}
+            {{- end }}
             {{- with .Values.extraEnv }}
               {{- toYaml . | nindent 12 }}
             {{- end }}

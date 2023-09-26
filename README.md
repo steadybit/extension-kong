@@ -13,12 +13,14 @@ Learn about the capabilities of this extension in our [Reliability Hub](https://
 
 ## Configuration
 
-| Environment Variable                                 | Helm value         | Meaning                                                                                          | required |
-|------------------------------------------------------|--------------------|--------------------------------------------------------------------------------------------------|----------|
-| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_NAME`         | `kong.name`        | Name of the kong instance                                                                        | yes      |
-| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_ORIGIN`       | `kong.origin`      | Url of the kong admin interface                                                                  | yes      |
-| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_HEADER_KEY`   | `kong.headerKey`   | Optional header key to send to the Kong admin API. Typically used for authentication purposes.   | no       |
-| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_HEADER_VALUE` | `kong.headerValue` | Optional header value to send to the Kong admin API. Typically used for authentication purposes. | no       |
+| Environment Variable                                        | Helm value                              | Meaning                                                                                          | required |
+|-------------------------------------------------------------|-----------------------------------------|--------------------------------------------------------------------------------------------------|----------|
+| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_NAME`                | `kong.name`                             | Name of the kong instance                                                                        | yes      |
+| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_ORIGIN`              | `kong.origin`                           | Url of the kong admin interface                                                                  | yes      |
+| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_HEADER_KEY`          | `kong.headerKey`                        | Optional header key to send to the Kong admin API. Typically used for authentication purposes.   | no       |
+| `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_HEADER_VALUE`        | `kong.headerValue`                      | Optional header value to send to the Kong admin API. Typically used for authentication purposes. | no       |
+| `STEADYBIT_EXTENSION_DISCOVERY_ATTRIBUTES_EXCLUDES_SERVICE` | `discovery.attributes.excludes.service` | Comma separated list of service names to exclude from discovery.                                 | no       |
+| `STEADYBIT_EXTENSION_DISCOVERY_ATTRIBUTES_EXCLUDES_ROUTE`   | `discovery.attributes.excludes.route`   | Comma separated list of service names to exclude from discovery.                                 | no       |
 
 The extension supports all environment variables provided by [steadybit/extension-kit](https://github.com/steadybit/extension-kit#environment-variables).
 

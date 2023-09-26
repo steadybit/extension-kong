@@ -7,7 +7,8 @@ import (
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
-	"github.com/steadybit/extension-kit/extbuild"
+  "github.com/steadybit/discovery-kit/go/discovery_kit_commons"
+  "github.com/steadybit/extension-kit/extbuild"
 	"github.com/steadybit/extension-kit/exthttp"
 	"github.com/steadybit/extension-kong/config"
 	"net/http"
@@ -124,5 +125,5 @@ func GetRouteTargets(instance *config.Instance) []discovery_kit_api.Target {
 
 		}
 	}
-	return targets
+	return discovery_kit_commons.ApplyAttributeExcludes(targets, config.Config.DiscoveryAttributesExcludesRoute)
 }
