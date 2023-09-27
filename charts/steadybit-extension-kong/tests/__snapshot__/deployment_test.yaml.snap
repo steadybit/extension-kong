@@ -424,6 +424,135 @@ manifest should match snapshot with mutual TLS using containerPaths:
               volumeMounts: null
           serviceAccountName: steadybit-extension-kong
           volumes: null
+manifest should match snapshot with podSecurityContext:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        steadybit.com/discovery-disabled: "true"
+      name: RELEASE-NAME-steadybit-extension-kong
+      namespace: NAMESPACE
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/name: steadybit-extension-kong
+      template:
+        metadata:
+          annotations: null
+          labels:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: steadybit-extension-kong
+            steadybit.com/discovery-disabled: "true"
+        spec:
+          containers:
+            - env:
+                - name: STEADYBIT_LOG_LEVEL
+                  value: INFO
+                - name: STEADYBIT_LOG_FORMAT
+                  value: text
+                - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_NAME
+                  value: null
+                - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
+                  value: null
+              image: ghcr.io/steadybit/extension-kong:latest
+              imagePullPolicy: Always
+              livenessProbe:
+                httpGet:
+                  path: /health/liveness
+                  port: 8085
+              name: extension
+              readinessProbe:
+                httpGet:
+                  path: /health/readiness
+                  port: 8085
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
+                requests:
+                  cpu: 50m
+                  memory: 32Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsGroup: 10000
+                runAsNonRoot: true
+                runAsUser: 10000
+              volumeMounts: null
+          securityContext:
+            runAsUser: 2222
+          serviceAccountName: steadybit-extension-kong
+          volumes: null
+manifest should match snapshot with priority class:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        steadybit.com/discovery-disabled: "true"
+      name: RELEASE-NAME-steadybit-extension-kong
+      namespace: NAMESPACE
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/name: steadybit-extension-kong
+      template:
+        metadata:
+          annotations: null
+          labels:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: steadybit-extension-kong
+            steadybit.com/discovery-disabled: "true"
+        spec:
+          containers:
+            - env:
+                - name: STEADYBIT_LOG_LEVEL
+                  value: INFO
+                - name: STEADYBIT_LOG_FORMAT
+                  value: text
+                - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_NAME
+                  value: null
+                - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
+                  value: null
+              image: ghcr.io/steadybit/extension-kong:latest
+              imagePullPolicy: Always
+              livenessProbe:
+                httpGet:
+                  path: /health/liveness
+                  port: 8085
+              name: extension
+              readinessProbe:
+                httpGet:
+                  path: /health/readiness
+                  port: 8085
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
+                requests:
+                  cpu: 50m
+                  memory: 32Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsGroup: 10000
+                runAsNonRoot: true
+                runAsUser: 10000
+              volumeMounts: null
+          priorityClassName: my-priority-class
+          serviceAccountName: steadybit-extension-kong
+          volumes: null
 manifest should match snapshot without TLS:
   1: |
     apiVersion: apps/v1
