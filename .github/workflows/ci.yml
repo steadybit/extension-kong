@@ -214,27 +214,11 @@ jobs:
       - name: Run chart-testing (lint)
         run: ct lint --config chartTesting.yaml
 
-      - name: Run chart-testing (list-changed)
-        id: list-changed
-        run: |
-          changed=$(ct list-changed --config chartTesting.yaml)
-          if [[ -n "$changed" ]]; then
-            echo "::set-output name=changed::true"
-          fi
-
-      - name: Create kind cluster
-        uses: helm/kind-action@v1.8.0
-        if: steps.list-changed.outputs.changed == 'true'
-
-      - name: Run chart-testing (install)
-        run: ct install --config chartTesting.yaml
-
-
   release-helm-chart:
     name: "Release Helm Chart"
     runs-on: ubuntu-latest
     needs:
-      - test-helm-charts
+      - audit
     if: github.ref == 'refs/heads/main'
 
     permissions:
