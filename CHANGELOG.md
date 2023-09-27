@@ -1,5 +1,10 @@
 # Changelog
 
+
+## v2.0.5
+
+- Possibility to exclude attributes from discovery
+
 ## v2.0.4
 
 - update dependencies
