@@ -16,6 +16,7 @@ import (
 	"github.com/steadybit/extension-kit/extruntime"
 	"github.com/steadybit/extension-kong/config"
 	"github.com/steadybit/extension-kong/kong"
+	_ "net/http/pprof" //allow pprof
 )
 
 func main() {
@@ -26,10 +27,10 @@ func main() {
 	exthealth.SetReady(false)
 	exthealth.StartProbes(8085)
 
-  // Most extensions require some form of configuration. These calls exist to parse and validate the
-  // configuration obtained from environment variables.
-  config.ParseConfiguration()
-  config.ValidateConfiguration()
+	// Most extensions require some form of configuration. These calls exist to parse and validate the
+	// configuration obtained from environment variables.
+	config.ParseConfiguration()
+	config.ValidateConfiguration()
 
 	kong.RegisterAttributeDescriptionHandlers()
 	kong.RegisterServiceDiscoveryHandlers()
