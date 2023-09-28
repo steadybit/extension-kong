@@ -13,7 +13,7 @@ func testDiscoverRoutes(t *testing.T, instance *config.Instance) {
 	// Given
 	service := configureService(t, instance, getTestService())
 	configureRoute(t, instance, getTestRoute(service))
-  config.Config.DiscoveryAttributesExcludesRoute = []string{"kong.service.id"}
+	config.Config.DiscoveryAttributesExcludesRoute = []string{"kong.service.id"}
 
 	// When
 	targets := GetRouteTargets(instance)
@@ -24,7 +24,7 @@ func testDiscoverRoutes(t *testing.T, instance *config.Instance) {
 	assert.Equal(t, "test", target.Label)
 	assert.Equal(t, []string{"/products"}, target.Attributes["kong.route.path"])
 	assert.Equal(t, []string{"mockbin"}, target.Attributes["kong.service.name"])
-  assert.NotContains(t, target.Attributes, "kong.service.id")
+	assert.NotContains(t, target.Attributes, "kong.service.id")
 }
 
 func testDiscoverNoRoutesWhenNoneAreConfigured(t *testing.T, instance *config.Instance) {

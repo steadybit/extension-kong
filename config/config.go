@@ -14,7 +14,7 @@ import (
 // https://github.com/kelseyhightower/envconfig
 type Specification struct {
 	DiscoveryAttributesExcludesService []string `json:"discoveryAttributesExcludesService" split_words:"true" required:"false"`
-	DiscoveryAttributesExcludesRoute []string `json:"discoveryAttributesExcludesRoute" split_words:"true" required:"false"`
+	DiscoveryAttributesExcludesRoute   []string `json:"discoveryAttributesExcludesRoute" split_words:"true" required:"false"`
 }
 
 var (
