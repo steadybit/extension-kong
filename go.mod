@@ -16,7 +16,7 @@ require (
 	github.com/steadybit/discovery-kit/go/discovery_kit_commons v0.1.0
 	github.com/steadybit/extension-kit v1.8.8
 	github.com/stretchr/testify v1.8.4
-	github.com/testcontainers/testcontainers-go v0.24.1
+	github.com/testcontainers/testcontainers-go v0.25.0
 )
 
 // Workaround for https://github.com/testcontainers/testcontainers-go/issues/1359
