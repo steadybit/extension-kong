@@ -5,7 +5,7 @@ module github.com/steadybit/extension-kong
 
 go 1.20
 
-require github.com/kong/go-kong v0.47.0
+require github.com/kong/go-kong v0.48.0
 
 require (
 	github.com/kelseyhightower/envconfig v1.4.0
@@ -66,7 +66,7 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gomarkdown/markdown v0.0.0-20230922112808-5421fefb8386 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/google/uuid v1.3.1 // indirect
+	github.com/google/uuid v1.4.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/invopop/yaml v0.2.0 // indirect
