@@ -9,6 +9,7 @@ import (
 	"github.com/steadybit/action-kit/go/action_kit_api/v2"
 	"github.com/steadybit/action-kit/go/action_kit_sdk"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
+	"github.com/steadybit/discovery-kit/go/discovery_kit_sdk"
 	"github.com/steadybit/extension-kit/extbuild"
 	"github.com/steadybit/extension-kit/exthealth"
 	"github.com/steadybit/extension-kit/exthttp"
@@ -32,10 +33,10 @@ func main() {
 	config.ParseConfiguration()
 	config.ValidateConfiguration()
 
-	kong.RegisterAttributeDescriptionHandlers()
-	kong.RegisterServiceDiscoveryHandlers()
+	discovery_kit_sdk.Register(kong.NewAttributeDescriber())
+	discovery_kit_sdk.Register(kong.NewServiceDiscovery())
 	action_kit_sdk.RegisterAction(kong.NewServiceRequestTerminationAction())
-	kong.RegisterRouteDiscoveryHandlers()
+	discovery_kit_sdk.Register(kong.NewRouteDiscovery())
 	action_kit_sdk.RegisterAction(kong.NewRequestTerminationAction())
 
 	log.Log().Msgf("Starting with configuration:")
@@ -62,34 +63,7 @@ type ExtensionListResponse struct {
 
 func getExtensionList() ExtensionListResponse {
 	return ExtensionListResponse{
-		ActionList: action_kit_sdk.GetActionList(),
-		DiscoveryList: discovery_kit_api.DiscoveryList{
-			Discoveries: []discovery_kit_api.DescribingEndpointReference{
-				{
-					Method: "GET",
-					Path:   kong.ServiceDiscoveryEndpoint,
-				},
-				{
-					Method: "GET",
-					Path:   kong.RouteDiscoveryEndpoint,
-				},
-			},
-			TargetTypes: []discovery_kit_api.DescribingEndpointReference{
-				{
-					Method: "GET",
-					Path:   kong.ServiceDiscoveryEndpoint + "/target-description",
-				},
-				{
-					Method: "GET",
-					Path:   kong.RouteDiscoveryEndpoint + "/target-description",
-				},
-			},
-			TargetAttributes: []discovery_kit_api.DescribingEndpointReference{
-				{
-					Method: "GET",
-					Path:   "/kong/attribute-descriptions",
-				},
-			},
-		},
+		ActionList:    action_kit_sdk.GetActionList(),
+		DiscoveryList: discovery_kit_sdk.GetDiscoveryList(),
 	}
 }
