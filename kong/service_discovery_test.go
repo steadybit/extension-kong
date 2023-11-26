@@ -14,7 +14,7 @@ func testDiscoverServices(t *testing.T, instance *config.Instance) {
 	configureService(t, instance, getTestService())
 	config.Config.DiscoveryAttributesExcludesService = []string{"kong.service.id"}
 	// When
-	targets := GetServiceTargets(instance)
+	targets := getServiceTargets(instance)
 
 	// Then
 	assert.NotEmpty(t, targets)
@@ -26,6 +26,6 @@ func testDiscoverServices(t *testing.T, instance *config.Instance) {
 }
 
 func testDiscoverNoServicesWhenNoneAreConfigured(t *testing.T, instance *config.Instance) {
-	targets := GetServiceTargets(instance)
+	targets := getServiceTargets(instance)
 	assert.Empty(t, targets)
 }

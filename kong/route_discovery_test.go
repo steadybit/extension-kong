@@ -16,7 +16,7 @@ func testDiscoverRoutes(t *testing.T, instance *config.Instance) {
 	config.Config.DiscoveryAttributesExcludesRoute = []string{"kong.service.id"}
 
 	// When
-	targets := GetRouteTargets(instance)
+	targets := getRouteTargets(instance)
 
 	// Then
 	assert.NotEmpty(t, targets)
@@ -28,6 +28,6 @@ func testDiscoverRoutes(t *testing.T, instance *config.Instance) {
 }
 
 func testDiscoverNoRoutesWhenNoneAreConfigured(t *testing.T, instance *config.Instance) {
-	targets := GetRouteTargets(instance)
+	targets := getRouteTargets(instance)
 	assert.Empty(t, targets)
 }

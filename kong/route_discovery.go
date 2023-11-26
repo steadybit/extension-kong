@@ -4,38 +4,43 @@
 package kong
 
 import (
+	"context"
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_commons"
+	"github.com/steadybit/discovery-kit/go/discovery_kit_sdk"
 	"github.com/steadybit/extension-kit/extbuild"
-	"github.com/steadybit/extension-kit/exthttp"
 	"github.com/steadybit/extension-kong/config"
-	"net/http"
-	"strings"
+	"time"
 )
 
-const RouteDiscoveryEndpoint = "/kong/route/discovery"
-
-func RegisterRouteDiscoveryHandlers() {
-	exthttp.RegisterHttpHandler(RouteDiscoveryEndpoint, exthttp.GetterAsHandler(getRouteDiscoveryDescription))
-	exthttp.RegisterHttpHandler(RouteDiscoveryEndpoint+"/target-description", exthttp.GetterAsHandler(getRouteTargetDescription))
-	exthttp.RegisterHttpHandler(RouteDiscoveryEndpoint+"/discovered-routes", getRouteDiscoveryResults)
+type routeDiscovery struct {
 }
 
-func getRouteDiscoveryDescription() discovery_kit_api.DiscoveryDescription {
+var (
+	_ discovery_kit_sdk.TargetDescriber = (*routeDiscovery)(nil)
+)
+
+func NewRouteDiscovery() discovery_kit_sdk.TargetDiscovery {
+	discovery := &routeDiscovery{}
+	return discovery_kit_sdk.NewCachedTargetDiscovery(discovery,
+		discovery_kit_sdk.WithRefreshTargetsNow(),
+		discovery_kit_sdk.WithRefreshTargetsInterval(context.Background(), 5*time.Minute),
+	)
+}
+
+func (d *routeDiscovery) Describe() discovery_kit_api.DiscoveryDescription {
 	return discovery_kit_api.DiscoveryDescription{
 		Id:         RouteTargetID,
 		RestrictTo: discovery_kit_api.Ptr(discovery_kit_api.LEADER),
 		Discover: discovery_kit_api.DescribingEndpointReferenceWithCallInterval{
-			Method:       "GET",
-			Path:         RouteDiscoveryEndpoint + "/discovered-routes",
-			CallInterval: discovery_kit_api.Ptr("600s"),
+			CallInterval: discovery_kit_api.Ptr("5m"),
 		},
 	}
 }
 
-func getRouteTargetDescription() discovery_kit_api.TargetDescription {
+func (*routeDiscovery) DescribeTarget() discovery_kit_api.TargetDescription {
 	return discovery_kit_api.TargetDescription{
 		Id:       RouteTargetID,
 		Label:    discovery_kit_api.PluralLabel{One: "Kong route", Other: "Kong routes"},
@@ -63,15 +68,15 @@ func getRouteTargetDescription() discovery_kit_api.TargetDescription {
 	}
 }
 
-func getRouteDiscoveryResults(w http.ResponseWriter, _ *http.Request, _ []byte) {
+func (*routeDiscovery) DiscoverTargets(_ context.Context) ([]discovery_kit_api.Target, error) {
 	var targets = make([]discovery_kit_api.Target, 0, 1000)
 	for _, instance := range config.Instances {
-		targets = append(targets, GetRouteTargets(&instance)...)
+		targets = append(targets, getRouteTargets(&instance)...)
 	}
-	exthttp.WriteBody(w, discovery_kit_api.DiscoveredTargets{Targets: targets})
+	return targets, nil
 }
 
-func GetRouteTargets(instance *config.Instance) []discovery_kit_api.Target {
+func getRouteTargets(instance *config.Instance) []discovery_kit_api.Target {
 	services, err := instance.GetServices()
 	if err != nil {
 		log.Err(err).Msgf("Failed to get services from Kong instance %s (%s)", instance.Name, instance.BaseUrl)
@@ -96,10 +101,8 @@ func GetRouteTargets(instance *config.Instance) []discovery_kit_api.Target {
 				attributes["kong.route.name"] = []string{*route.Name}
 				attributes["steadybit.label"] = []string{*route.Name}
 			}
-			var url strings.Builder
 			attributes["kong.service.id"] = []string{*service.ID}
 			attributes["kong.service.name"] = []string{*service.Name}
-			fmt.Fprintf(&url, "%s://", *service.Name)
 
 			for _, path := range route.Paths {
 				attributes["kong.route.path"] = append(attributes["kong.route.path"], *path)
