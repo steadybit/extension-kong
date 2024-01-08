@@ -7,7 +7,7 @@ go 1.21
 
 require (
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/kong/go-kong v0.48.0
+	github.com/kong/go-kong v0.49.0
 	github.com/rs/zerolog v1.31.0
 	github.com/steadybit/action-kit/go/action_kit_api/v2 v2.8.0
 	github.com/steadybit/action-kit/go/action_kit_sdk v1.1.8
@@ -66,7 +66,7 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gomarkdown/markdown v0.0.0-20231115200524-a660076da3fd // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/google/uuid v1.4.0 // indirect
+	github.com/google/uuid v1.5.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/invopop/yaml v0.2.0 // indirect
