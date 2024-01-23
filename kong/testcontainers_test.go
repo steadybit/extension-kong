@@ -10,6 +10,7 @@ import (
 	"github.com/steadybit/extension-kong/config"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
+	tcnetwork "github.com/testcontainers/testcontainers-go/network"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"testing"
 	"time"
@@ -97,15 +98,9 @@ func cleanupKong(t *testing.T, instance *config.Instance) {
 }
 
 func setupTestContainers(ctx context.Context) (*TestContainers, error) {
-	networkName := "test-kong-net"
 	kongImage := "kong/kong-gateway:2.8.1.2-alpine"
 
-	networkRequest := testcontainers.GenericNetworkRequest{
-		NetworkRequest: testcontainers.NetworkRequest{
-			Name: networkName,
-		},
-	}
-	_, err := testcontainers.GenericNetwork(ctx, networkRequest)
+	network, err := tcnetwork.New(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +114,7 @@ func setupTestContainers(ctx context.Context) (*TestContainers, error) {
 			"POSTGRES_PASSWORD": "kongpass",
 		},
 		ExposedPorts: []string{"5433/tcp"},
-		Networks:     []string{networkName},
+		Networks:     []string{network.Name},
 		Cmd:          []string{"-p", "5433"},
 		WaitingFor:   wait.ForLog("database system is ready to accept connections"),
 	}
@@ -142,7 +137,7 @@ func setupTestContainers(ctx context.Context) (*TestContainers, error) {
 			"KONG_PG_USER":     "kong",
 			"KONG_PG_PASSWORD": "kongpass",
 		},
-		Networks:   []string{networkName},
+		Networks:   []string{network.Name},
 		Cmd:        []string{"kong", "migrations", "bootstrap", "-v"},
 		WaitingFor: wait.ForExit(),
 	}
@@ -177,7 +172,7 @@ func setupTestContainers(ctx context.Context) (*TestContainers, error) {
 			"KONG_ADMIN_LISTEN":     "0.0.0.0:8001",
 			"KONG_ADMIN_GUI_URL":    "http://localhost:8002",
 		},
-		Networks:   []string{networkName},
+		Networks:   []string{network.Name},
 		WaitingFor: wait.ForHTTP("/").WithPort("8001/tcp").WithStartupTimeout(5 * time.Minute),
 	}
 	kongContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
