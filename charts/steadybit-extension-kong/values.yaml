@@ -15,11 +15,11 @@ kong:
 image:
   # image.name -- The container image to use for the steadybit Kong extension.
   name: ghcr.io/steadybit/extension-kong
-  # image.tag -- tag name of the extension-kong container image to use.
+  # image.tag -- tag name of the extension-kong container image to use. Defaults to appVersion of this chart.
   # See https://hub.docker.com/r/steadybit/extension-kong for all tags.
-  tag: latest
+  tag: null
   # image.pullPolicy -- Specifies when to pull the image container.
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 tls:
   server:

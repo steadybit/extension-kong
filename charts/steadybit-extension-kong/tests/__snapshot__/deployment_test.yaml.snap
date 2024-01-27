@@ -36,8 +36,8 @@ manifest should match snapshot using podAnnotations and Labels:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
-              image: ghcr.io/steadybit/extension-kong:latest
-              imagePullPolicy: Always
+              image: ghcr.io/steadybit/extension-kong:v0.0.0
+              imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 5
                 httpGet:
@@ -116,8 +116,8 @@ manifest should match snapshot with TLS:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
-              image: ghcr.io/steadybit/extension-kong:latest
-              imagePullPolicy: Always
+              image: ghcr.io/steadybit/extension-kong:v0.0.0
+              imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 5
                 httpGet:
@@ -206,8 +206,8 @@ manifest should match snapshot with extra env vars:
                   name: env-configmap
                 - name: env-secrets
                   secretRef: null
-              image: ghcr.io/steadybit/extension-kong:latest
-              imagePullPolicy: Always
+              image: ghcr.io/steadybit/extension-kong:v0.0.0
+              imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 5
                 httpGet:
@@ -284,8 +284,8 @@ manifest should match snapshot with extra labels:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
-              image: ghcr.io/steadybit/extension-kong:latest
-              imagePullPolicy: Always
+              image: ghcr.io/steadybit/extension-kong:v0.0.0
+              imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 5
                 httpGet:
@@ -366,8 +366,8 @@ manifest should match snapshot with mutual TLS:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
-              image: ghcr.io/steadybit/extension-kong:latest
-              imagePullPolicy: Always
+              image: ghcr.io/steadybit/extension-kong:v0.0.0
+              imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 5
                 httpGet:
@@ -462,8 +462,8 @@ manifest should match snapshot with mutual TLS using containerPaths:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
-              image: ghcr.io/steadybit/extension-kong:latest
-              imagePullPolicy: Always
+              image: ghcr.io/steadybit/extension-kong:v0.0.0
+              imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 5
                 httpGet:
@@ -538,8 +538,8 @@ manifest should match snapshot with podSecurityContext:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
-              image: ghcr.io/steadybit/extension-kong:latest
-              imagePullPolicy: Always
+              image: ghcr.io/steadybit/extension-kong:v0.0.0
+              imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 5
                 httpGet:
@@ -616,8 +616,8 @@ manifest should match snapshot with priority class:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
-              image: ghcr.io/steadybit/extension-kong:latest
-              imagePullPolicy: Always
+              image: ghcr.io/steadybit/extension-kong:v0.0.0
+              imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 5
                 httpGet:
@@ -693,8 +693,8 @@ manifest should match snapshot without TLS:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
-              image: ghcr.io/steadybit/extension-kong:latest
-              imagePullPolicy: Always
+              image: ghcr.io/steadybit/extension-kong:v0.0.0
+              imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 5
                 httpGet:
