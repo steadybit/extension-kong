@@ -32,8 +32,7 @@ func NewRouteDiscovery() discovery_kit_sdk.TargetDiscovery {
 
 func (d *routeDiscovery) Describe() discovery_kit_api.DiscoveryDescription {
 	return discovery_kit_api.DiscoveryDescription{
-		Id:         RouteTargetID,
-		RestrictTo: discovery_kit_api.Ptr(discovery_kit_api.LEADER),
+		Id: RouteTargetID,
 		Discover: discovery_kit_api.DescribingEndpointReferenceWithCallInterval{
 			CallInterval: discovery_kit_api.Ptr("5m"),
 		},

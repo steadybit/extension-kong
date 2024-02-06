@@ -34,8 +34,7 @@ func NewServiceDiscovery() discovery_kit_sdk.TargetDiscovery {
 
 func (*serviceDiscovery) Describe() discovery_kit_api.DiscoveryDescription {
 	return discovery_kit_api.DiscoveryDescription{
-		Id:         ServiceTargetId,
-		RestrictTo: discovery_kit_api.Ptr(discovery_kit_api.LEADER),
+		Id: ServiceTargetId,
 		Discover: discovery_kit_api.DescribingEndpointReferenceWithCallInterval{
 			CallInterval: discovery_kit_api.Ptr("150s"),
 		},
