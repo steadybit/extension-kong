@@ -50,6 +50,7 @@ func main() {
 		}
 	}
 	action_kit_sdk.InstallSignalHandler()
+	action_kit_sdk.RegisterCoverageEndpoints()
 	exthealth.SetReady(true)
 
 	exthttp.RegisterHttpHandler("/", exthttp.GetterAsHandler(getExtensionList))
