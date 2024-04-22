@@ -8,7 +8,7 @@ go 1.21.0
 toolchain go1.21.7
 
 require (
-	github.com/KimMachineGun/automemlimit v0.5.0
+	github.com/KimMachineGun/automemlimit v0.6.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kong/go-kong v0.54.0
 	github.com/rs/zerolog v1.32.0
