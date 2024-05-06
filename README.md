@@ -41,7 +41,7 @@ helm upgrade steadybit-extension-kong \
   --wait \
   --timeout 5m0s \
   --create-namespace \
-  --namespace steadybit-extension \
+  --namespace steadybit-agent \
   --set kong.name="{{SYMBOLIC_NAME}}" \
   --set kong.origin="{{KONG_API_SERVER_ORIGIN}}" \
   steadybit-extension-kong/steadybit-extension-kong
