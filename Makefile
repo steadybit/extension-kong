@@ -83,7 +83,7 @@ run: tidy build
 ## container: build the container image
 .PHONY: container
 container:
-		docker buildx build --build-arg ADDITIONAL_BUILD_PARAMS="-cover -covermode=atomic" --build-arg BUILD_WITH_COVERAGE="true" --build-arg SKIP_LICENSES_REPORT="true" -t extension-kong:latest --output=type=docker .
+		docker buildx build --build-arg BUILD_WITH_COVERAGE="true" --build-arg SKIP_LICENSES_REPORT="true" -t extension-kong:latest --output=type=docker .
 
 ## linuxpkg: build the linux packages
 .PHONY: linuxpkg
