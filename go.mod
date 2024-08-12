@@ -10,7 +10,7 @@ toolchain go1.22.4
 require (
 	github.com/KimMachineGun/automemlimit v0.6.1
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/kong/go-kong v0.57.0
+	github.com/kong/go-kong v0.57.1
 	github.com/rs/zerolog v1.33.0
 	github.com/steadybit/action-kit/go/action_kit_api/v2 v2.9.0
 	github.com/steadybit/action-kit/go/action_kit_sdk v1.1.9
@@ -103,7 +103,7 @@ require (
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/tidwall/gjson v1.17.1 // indirect
+	github.com/tidwall/gjson v1.17.3 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
