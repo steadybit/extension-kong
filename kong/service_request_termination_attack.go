@@ -47,7 +47,7 @@ func (f ServiceTerminationAction) Describe() action_kit_api.ActionDescription {
 				},
 			}),
 		}),
-		Category:    extutil.Ptr("network"),
+		Technology:  extutil.Ptr("Kong"),
 		Kind:        action_kit_api.Attack,
 		TimeControl: action_kit_api.TimeControlExternal,
 		Parameters: []action_kit_api.ActionParameter{

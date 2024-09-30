@@ -69,7 +69,7 @@ func (f RequestTerminationAction) Describe() action_kit_api.ActionDescription {
 				},
 			}),
 		}),
-		Category:    extutil.Ptr("network"),
+		Technology:  extutil.Ptr("Kong"),
 		TimeControl: action_kit_api.TimeControlExternal,
 		Kind:        action_kit_api.Attack,
 		Parameters: []action_kit_api.ActionParameter{
