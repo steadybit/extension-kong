@@ -49,7 +49,7 @@ func main() {
 			log.Log().Msgf("  %s: %s", instance.Name, instance.BaseUrl)
 		}
 	}
-	action_kit_sdk.InstallSignalHandler()
+	extsignals.ActivateSignalHandlers()
 	action_kit_sdk.RegisterCoverageEndpoints()
 	exthealth.SetReady(true)
 
