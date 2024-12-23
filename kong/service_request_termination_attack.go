@@ -36,12 +36,12 @@ func (f ServiceTerminationAction) Describe() action_kit_api.ActionDescription {
 			TargetType: ServiceTargetId,
 			SelectionTemplates: extutil.Ptr([]action_kit_api.TargetSelectionTemplate{
 				{
-					Label:       "by route-id",
+					Label:       "route-id",
 					Description: extutil.Ptr("Find service by id"),
 					Query:       "kong.service.id=\"\"",
 				},
 				{
-					Label:       "by route-name",
+					Label:       "route-name",
 					Description: extutil.Ptr("Find service by name"),
 					Query:       "kong.service.name=\"\"",
 				},

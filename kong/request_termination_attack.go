@@ -58,12 +58,12 @@ func (f RequestTerminationAction) Describe() action_kit_api.ActionDescription {
 			TargetType: RouteTargetID,
 			SelectionTemplates: extutil.Ptr([]action_kit_api.TargetSelectionTemplate{
 				{
-					Label:       "by route-id",
+					Label:       "route-id",
 					Description: extutil.Ptr("Find route by id"),
 					Query:       "kong.route.id=\"\"",
 				},
 				{
-					Label:       "by route-name",
+					Label:       "route-name",
 					Description: extutil.Ptr("Find route by name"),
 					Query:       "kong.route.name=\"\"",
 				},
