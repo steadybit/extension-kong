@@ -6,12 +6,16 @@ manifest should match snapshot with TLS:
       annotations:
         steadybit.com/extension-auto-discovery: |
           {"extensions":[{"port":8084,"protocol":"https","types":["ACTION","DISCOVERY"]}]}
+        steadybit.com/extension-auto-registration: |
+          {"extensions":[{"port":8084,"protocol":"https"}]}
       labels: null
       name: RELEASE-NAME-steadybit-extension-kong
       namespace: NAMESPACE
     spec:
       ports:
-        - port: 8084
+        - appProtocol: tcp
+          name: tcp-app
+          port: 8084
           protocol: TCP
           targetPort: 8084
       selector:
@@ -25,12 +29,16 @@ manifest should match snapshot with mutual TLS:
       annotations:
         steadybit.com/extension-auto-discovery: |
           {"extensions":[{"port":8084,"protocol":"https","types":["ACTION","DISCOVERY"]}]}
+        steadybit.com/extension-auto-registration: |
+          {"extensions":[{"port":8084,"protocol":"https"}]}
       labels: null
       name: RELEASE-NAME-steadybit-extension-kong
       namespace: NAMESPACE
     spec:
       ports:
-        - port: 8084
+        - appProtocol: tcp
+          name: tcp-app
+          port: 8084
           protocol: TCP
           targetPort: 8084
       selector:
@@ -44,12 +52,16 @@ manifest should match snapshot with mutual TLS using containerPaths:
       annotations:
         steadybit.com/extension-auto-discovery: |
           {"extensions":[{"port":8084,"protocol":"https","types":["ACTION","DISCOVERY"]}]}
+        steadybit.com/extension-auto-registration: |
+          {"extensions":[{"port":8084,"protocol":"https"}]}
       labels: null
       name: RELEASE-NAME-steadybit-extension-kong
       namespace: NAMESPACE
     spec:
       ports:
-        - port: 8084
+        - appProtocol: tcp
+          name: tcp-app
+          port: 8084
           protocol: TCP
           targetPort: 8084
       selector:
@@ -63,12 +75,16 @@ manifest should match snapshot without TLS:
       annotations:
         steadybit.com/extension-auto-discovery: |
           {"extensions":[{"port":8084,"protocol":"http","types":["ACTION","DISCOVERY"]}]}
+        steadybit.com/extension-auto-registration: |
+          {"extensions":[{"port":8084,"protocol":"http"}]}
       labels: null
       name: RELEASE-NAME-steadybit-extension-kong
       namespace: NAMESPACE
     spec:
       ports:
-        - port: 8084
+        - appProtocol: tcp
+          name: tcp-app
+          port: 8084
           protocol: TCP
           targetPort: 8084
       selector:
