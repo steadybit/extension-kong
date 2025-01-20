@@ -10,7 +10,7 @@ toolchain go1.23.4
 require (
 	github.com/KimMachineGun/automemlimit v0.7.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/kong/go-kong v0.62.0
+	github.com/kong/go-kong v0.63.0
 	github.com/rs/zerolog v1.33.0
 	github.com/steadybit/action-kit/go/action_kit_api/v2 v2.9.6
 	github.com/steadybit/action-kit/go/action_kit_sdk v1.1.14
