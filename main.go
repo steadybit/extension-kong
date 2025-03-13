@@ -20,7 +20,6 @@ import (
 	"github.com/steadybit/extension-kong/config"
 	"github.com/steadybit/extension-kong/kong"
 	_ "go.uber.org/automaxprocs" // Importing automaxprocs automatically adjusts GOMAXPROCS.
-	_ "net/http/pprof"           //allow pprof
 )
 
 func main() {
