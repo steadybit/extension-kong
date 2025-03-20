@@ -8,7 +8,7 @@ import (
 	"github.com/kong/go-kong/kong"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_api"
 	"github.com/steadybit/extension-kit/extutil"
-	"github.com/steadybit/extension-kong/config"
+	"github.com/steadybit/extension-kong/v2/config"
 	"github.com/stretchr/testify/require"
 	"testing"
 )

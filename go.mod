@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: 2022 Steadybit GmbH
 
-module github.com/steadybit/extension-kong
+module github.com/steadybit/extension-kong/v2
 
 go 1.24
 

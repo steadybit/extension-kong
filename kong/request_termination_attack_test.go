@@ -8,7 +8,7 @@ import (
 	"github.com/steadybit/action-kit/go/action_kit_api/v2"
 	"github.com/steadybit/action-kit/go/action_kit_sdk"
 	"github.com/steadybit/extension-kit/extutil"
-	"github.com/steadybit/extension-kong/config"
+	"github.com/steadybit/extension-kong/v2/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"

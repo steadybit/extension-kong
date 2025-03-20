@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/rs/zerolog/log"
-	"github.com/steadybit/extension-kong/config"
+	"github.com/steadybit/extension-kong/v2/config"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	tcnetwork "github.com/testcontainers/testcontainers-go/network"

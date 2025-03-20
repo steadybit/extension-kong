@@ -17,8 +17,8 @@ import (
 	"github.com/steadybit/extension-kit/extlogging"
 	"github.com/steadybit/extension-kit/extruntime"
 	"github.com/steadybit/extension-kit/extsignals"
-	"github.com/steadybit/extension-kong/config"
-	"github.com/steadybit/extension-kong/kong"
+	"github.com/steadybit/extension-kong/v2/config"
+	"github.com/steadybit/extension-kong/v2/kong"
 	_ "go.uber.org/automaxprocs" // Importing automaxprocs automatically adjusts GOMAXPROCS.
 )
 

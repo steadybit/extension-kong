@@ -13,8 +13,8 @@ import (
 	"github.com/steadybit/extension-kit/extbuild"
 	"github.com/steadybit/extension-kit/extconversion"
 	"github.com/steadybit/extension-kit/extutil"
-	"github.com/steadybit/extension-kong/config"
-	"github.com/steadybit/extension-kong/utils"
+	"github.com/steadybit/extension-kong/v2/config"
+	"github.com/steadybit/extension-kong/v2/utils"
 )
 
 type RequestTerminationAction struct {

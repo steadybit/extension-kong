@@ -11,7 +11,7 @@ import (
 	"github.com/steadybit/discovery-kit/go/discovery_kit_commons"
 	"github.com/steadybit/discovery-kit/go/discovery_kit_sdk"
 	"github.com/steadybit/extension-kit/extbuild"
-	"github.com/steadybit/extension-kong/config"
+	"github.com/steadybit/extension-kong/v2/config"
 	"time"
 )
 

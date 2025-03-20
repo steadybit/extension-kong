@@ -4,7 +4,7 @@
 package kong
 
 import (
-	"github.com/steadybit/extension-kong/config"
+	"github.com/steadybit/extension-kong/v2/config"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
