@@ -9,7 +9,7 @@ require (
 	github.com/KimMachineGun/automemlimit v0.7.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kong/go-kong v0.65.1
-	github.com/rs/zerolog v1.33.0
+	github.com/rs/zerolog v1.34.0
 	github.com/steadybit/action-kit/go/action_kit_api/v2 v2.9.7
 	github.com/steadybit/action-kit/go/action_kit_sdk v1.1.15
 	github.com/steadybit/action-kit/go/action_kit_test v1.3.2
