@@ -116,6 +116,8 @@ func (f RequestTerminationAction) Describe() action_kit_api.ActionDescription {
 				Type:         action_kit_api.ActionParameterTypeInteger,
 				Advanced:     extutil.Ptr(true),
 				DefaultValue: extutil.Ptr("500"),
+				MinValue:     extutil.Ptr(100),
+				MaxValue:     extutil.Ptr(599),
 			},
 			{
 				Label:       "Trigger",
