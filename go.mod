@@ -6,7 +6,7 @@ module github.com/steadybit/extension-kong/v2
 go 1.24.0
 
 require (
-	github.com/KimMachineGun/automemlimit v0.7.3
+	github.com/KimMachineGun/automemlimit v0.7.4
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kong/go-kong v0.67.0
 	github.com/rs/zerolog v1.34.0
