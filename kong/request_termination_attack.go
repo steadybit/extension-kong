@@ -50,7 +50,7 @@ func (f RequestTerminationAction) NewEmptyState() RequestTerminationState {
 func (f RequestTerminationAction) Describe() action_kit_api.ActionDescription {
 	return action_kit_api.ActionDescription{
 		Id:          "com.steadybit.extension_kong.routes.request_termination",
-		Label:       "Terminate requests",
+		Label:       "Terminate Requests",
 		Description: "Leverage the Kong request-termination plugin to inject HTTP failures for specific Kong routes.",
 		Version:     extbuild.GetSemverVersionStringOrUnknown(),
 		Icon:        extutil.Ptr(RouteIcon),
