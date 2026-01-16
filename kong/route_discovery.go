@@ -42,7 +42,7 @@ func (d *routeDiscovery) Describe() discovery_kit_api.DiscoveryDescription {
 func (*routeDiscovery) DescribeTarget() discovery_kit_api.TargetDescription {
 	return discovery_kit_api.TargetDescription{
 		Id:       RouteTargetID,
-		Label:    discovery_kit_api.PluralLabel{One: "Kong route", Other: "Kong routes"},
+		Label:    discovery_kit_api.PluralLabel{One: "Kong Route", Other: "Kong Routes"},
 		Category: discovery_kit_api.Ptr("API gateway"),
 		Version:  extbuild.GetSemverVersionStringOrUnknown(),
 		Icon:     discovery_kit_api.Ptr(RouteIcon),

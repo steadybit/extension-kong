@@ -44,7 +44,7 @@ func (*serviceDiscovery) Describe() discovery_kit_api.DiscoveryDescription {
 func (*serviceDiscovery) DescribeTarget() discovery_kit_api.TargetDescription {
 	return discovery_kit_api.TargetDescription{
 		Id:       ServiceTargetId,
-		Label:    discovery_kit_api.PluralLabel{One: "Kong service", Other: "Kong services"},
+		Label:    discovery_kit_api.PluralLabel{One: "Kong Service", Other: "Kong Services"},
 		Category: discovery_kit_api.Ptr("API gateway"),
 		Version:  extbuild.GetSemverVersionStringOrUnknown(),
 		Icon:     discovery_kit_api.Ptr(ServiceIcon),
