@@ -17,7 +17,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN GOOS=$TARGETOS GOARCH=$TARGETARCH goreleaser build --snapshot="${BUILD_SNAPSHOT}" --single-target -o extension
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH GOTOOLCHAIN=auto goreleaser build --snapshot="${BUILD_SNAPSHOT}" --single-target -o extension
 ##
 ## Runtime
 ##
