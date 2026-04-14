@@ -36,7 +36,7 @@ func (*serviceDiscovery) Describe() discovery_kit_api.DiscoveryDescription {
 	return discovery_kit_api.DiscoveryDescription{
 		Id: ServiceTargetId,
 		Discover: discovery_kit_api.DescribingEndpointReferenceWithCallInterval{
-			CallInterval: discovery_kit_api.Ptr("150s"),
+			CallInterval: new("150s"),
 		},
 	}
 }
@@ -45,9 +45,9 @@ func (*serviceDiscovery) DescribeTarget() discovery_kit_api.TargetDescription {
 	return discovery_kit_api.TargetDescription{
 		Id:       ServiceTargetId,
 		Label:    discovery_kit_api.PluralLabel{One: "Kong service", Other: "Kong services"},
-		Category: discovery_kit_api.Ptr("API gateway"),
+		Category: new("API gateway"),
 		Version:  extbuild.GetSemverVersionStringOrUnknown(),
-		Icon:     discovery_kit_api.Ptr(ServiceIcon),
+		Icon:     new(ServiceIcon),
 		Table: discovery_kit_api.Table{
 			Columns: []discovery_kit_api.Column{
 				{Attribute: "kong.service.name"},

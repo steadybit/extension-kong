@@ -34,7 +34,7 @@ func (d *routeDiscovery) Describe() discovery_kit_api.DiscoveryDescription {
 	return discovery_kit_api.DiscoveryDescription{
 		Id: RouteTargetID,
 		Discover: discovery_kit_api.DescribingEndpointReferenceWithCallInterval{
-			CallInterval: discovery_kit_api.Ptr("5m"),
+			CallInterval: new("5m"),
 		},
 	}
 }
@@ -43,9 +43,9 @@ func (*routeDiscovery) DescribeTarget() discovery_kit_api.TargetDescription {
 	return discovery_kit_api.TargetDescription{
 		Id:       RouteTargetID,
 		Label:    discovery_kit_api.PluralLabel{One: "Kong route", Other: "Kong routes"},
-		Category: discovery_kit_api.Ptr("API gateway"),
+		Category: new("API gateway"),
 		Version:  extbuild.GetSemverVersionStringOrUnknown(),
-		Icon:     discovery_kit_api.Ptr(RouteIcon),
+		Icon:     new(RouteIcon),
 		Table: discovery_kit_api.Table{
 			Columns: []discovery_kit_api.Column{
 				{Attribute: "kong.instance.name"},
