@@ -12,7 +12,6 @@ import (
 	extension_kit "github.com/steadybit/extension-kit"
 	"github.com/steadybit/extension-kit/extbuild"
 	"github.com/steadybit/extension-kit/extconversion"
-	"github.com/steadybit/extension-kit/extutil"
 	"github.com/steadybit/extension-kong/v2/config"
 	"github.com/steadybit/extension-kong/v2/utils"
 )
@@ -53,23 +52,23 @@ func (f RequestTerminationAction) Describe() action_kit_api.ActionDescription {
 		Label:       "Terminate Requests",
 		Description: "Leverage the Kong request-termination plugin to inject HTTP failures for specific Kong routes.",
 		Version:     extbuild.GetSemverVersionStringOrUnknown(),
-		Icon:        extutil.Ptr(RouteIcon),
-		TargetSelection: extutil.Ptr(action_kit_api.TargetSelection{
+		Icon:        new(RouteIcon),
+		TargetSelection: new(action_kit_api.TargetSelection{
 			TargetType: RouteTargetID,
-			SelectionTemplates: extutil.Ptr([]action_kit_api.TargetSelectionTemplate{
+			SelectionTemplates: new([]action_kit_api.TargetSelectionTemplate{
 				{
 					Label:       "route-id",
-					Description: extutil.Ptr("Find route by id"),
+					Description: new("Find route by id"),
 					Query:       "kong.route.id=\"\"",
 				},
 				{
 					Label:       "route-name",
-					Description: extutil.Ptr("Find route by name"),
+					Description: new("Find route by name"),
 					Query:       "kong.route.name=\"\"",
 				},
 			}),
 		}),
-		Technology:  extutil.Ptr("Kong"),
+		Technology:  new("Kong"),
 		TimeControl: action_kit_api.TimeControlExternal,
 		Kind:        action_kit_api.Attack,
 		Parameters: []action_kit_api.ActionParameter{
@@ -77,59 +76,59 @@ func (f RequestTerminationAction) Describe() action_kit_api.ActionDescription {
 				Label:        "Duration",
 				Name:         "duration",
 				Type:         action_kit_api.ActionParameterTypeDuration,
-				Advanced:     extutil.Ptr(false),
-				Required:     extutil.Ptr(true),
-				DefaultValue: extutil.Ptr("30s"),
+				Advanced:     new(false),
+				Required:     new(true),
+				DefaultValue: new("30s"),
 			},
 			{
 				Label:       "Consumer Username or ID",
 				Name:        "consumer",
-				Description: extutil.Ptr("You may optionally define for which Kong consumer the traffic should be impacted."),
+				Description: new("You may optionally define for which Kong consumer the traffic should be impacted."),
 				Type:        action_kit_api.ActionParameterTypeString,
-				Advanced:    extutil.Ptr(false),
-				Required:    extutil.Ptr(false),
+				Advanced:    new(false),
+				Required:    new(false),
 			},
 			{
 				Label:        "Message",
 				Name:         "message",
 				Type:         action_kit_api.ActionParameterTypeString,
-				Advanced:     extutil.Ptr(true),
-				DefaultValue: extutil.Ptr("Error injected through the Steadybit Kong extension (through the request-termination Kong plugin)"),
+				Advanced:     new(true),
+				DefaultValue: new("Error injected through the Steadybit Kong extension (through the request-termination Kong plugin)"),
 			},
 			{
 				Label:       "Content-Type",
 				Name:        "contentType",
-				Description: extutil.Ptr("Content-Type response header to be returned for terminated requests."),
+				Description: new("Content-Type response header to be returned for terminated requests."),
 				Type:        action_kit_api.ActionParameterTypeString,
-				Advanced:    extutil.Ptr(true),
+				Advanced:    new(true),
 			},
 			{
 				Label:       "Body",
 				Name:        "body",
-				Description: extutil.Ptr("The raw response body to be returned for terminated requests. This is mutually exclusive with the message parameter. A body parameter takes precedence over the message parameter."),
+				Description: new("The raw response body to be returned for terminated requests. This is mutually exclusive with the message parameter. A body parameter takes precedence over the message parameter."),
 				Type:        action_kit_api.ActionParameterTypeString,
-				Advanced:    extutil.Ptr(true),
+				Advanced:    new(true),
 			},
 			{
 				Label:        "HTTP status code",
 				Name:         "status",
 				Type:         action_kit_api.ActionParameterTypeInteger,
-				Advanced:     extutil.Ptr(true),
-				DefaultValue: extutil.Ptr("500"),
-				MinValue:     extutil.Ptr(100),
-				MaxValue:     extutil.Ptr(599),
+				Advanced:     new(true),
+				DefaultValue: new("500"),
+				MinValue:     new(100),
+				MaxValue:     new(599),
 			},
 			{
 				Label:       "Trigger",
 				Name:        "trigger",
 				Type:        action_kit_api.ActionParameterTypeString,
-				Description: extutil.Ptr("When not set, the plugin always activates. When set to a string, the plugin will activate exclusively on requests containing either a header or a query parameter that is named the string."),
-				Advanced:    extutil.Ptr(true),
+				Description: new("When not set, the plugin always activates. When set to a string, the plugin will activate exclusively on requests containing either a header or a query parameter that is named the string."),
+				Advanced:    new(true),
 			},
 		},
 		Prepare: action_kit_api.MutatingEndpointReference{},
 		Start:   action_kit_api.MutatingEndpointReference{},
-		Stop:    extutil.Ptr(action_kit_api.MutatingEndpointReference{}),
+		Stop:    new(action_kit_api.MutatingEndpointReference{}),
 	}
 }
 
@@ -198,8 +197,8 @@ func (f RequestTerminationAction) Prepare(_ context.Context, state *RequestTermi
 	}
 
 	plugin, err := instance.CreatePluginAtAnyLevel(&kong.Plugin{
-		Name:    extutil.Ptr("request-termination"),
-		Enabled: extutil.Ptr(false),
+		Name:    new("request-termination"),
+		Enabled: new(false),
 		Tags: utils.Strings([]string{
 			"created-by=steadybit",
 		}),
@@ -240,7 +239,7 @@ func (f RequestTerminationAction) Start(_ context.Context, state *RequestTermina
 		if state.RouteId != "" {
 			_, err = instance.UpdatePluginForRoute(&state.RouteId, &kong.Plugin{
 				ID:      &pluginId,
-				Enabled: extutil.Ptr(true),
+				Enabled: new(true),
 			})
 			if err != nil {
 				return nil, extension_kit.ToError(fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s' at route level", pluginId), err)
@@ -248,7 +247,7 @@ func (f RequestTerminationAction) Start(_ context.Context, state *RequestTermina
 		} else if state.ServiceId != "" {
 			_, err = instance.UpdatePluginForService(&state.ServiceId, &kong.Plugin{
 				ID:      &pluginId,
-				Enabled: extutil.Ptr(true),
+				Enabled: new(true),
 			})
 			if err != nil {
 				return nil, extension_kit.ToError(fmt.Sprintf("Failed to enable plugin within Kong for plugin ID '%s' at service level", pluginId), err)
@@ -280,7 +279,7 @@ func (f RequestTerminationAction) Stop(_ context.Context, state *RequestTerminat
 	return nil, nil
 }
 
-func isDefinedString(v interface{}) bool {
+func isDefinedString(v any) bool {
 	return v != nil && len(v.(string)) > 0
 }
 

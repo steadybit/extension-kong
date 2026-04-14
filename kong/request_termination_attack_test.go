@@ -57,7 +57,7 @@ func testPrepareConfiguresDisabledPlugin(t *testing.T, instance *config.Instance
 	// Given
 	service := configureService(t, instance, getTestService())
 	requestBody := extutil.JsonMangle(action_kit_api.PrepareActionRequestBody{
-		Config: map[string]interface{}{
+		Config: map[string]any{
 			"status":  200,
 			"message": "Hello from Kong extension",
 		},
@@ -99,7 +99,7 @@ func testPrepareFailsOnUnknownConsumer(t *testing.T, instance *config.Instance) 
 	// Given
 	service := configureService(t, instance, getTestService())
 	requestBody := extutil.JsonMangle(action_kit_api.PrepareActionRequestBody{
-		Config: map[string]interface{}{
+		Config: map[string]any{
 			"status":   200,
 			"message":  "Hello from Kong extension",
 			"consumer": "unknown",
@@ -127,7 +127,7 @@ func testPrepareWithConsumer(t *testing.T, instance *config.Instance) {
 	service := configureService(t, instance, getTestService())
 	consumer := configureConsumer(t, instance, getTestConsumer())
 	requestBody := extutil.JsonMangle(action_kit_api.PrepareActionRequestBody{
-		Config: map[string]interface{}{
+		Config: map[string]any{
 			"status":      200,
 			"message":     "Hello from Kong extension",
 			"consumer":    *consumer.Username,
@@ -169,7 +169,7 @@ func testPrepareWithRoute(t *testing.T, instance *config.Instance) {
 	service := configureService(t, instance, getTestService())
 	route := configureRoute(t, instance, getTestRoute(service))
 	requestBody := extutil.JsonMangle(action_kit_api.PrepareActionRequestBody{
-		Config: map[string]interface{}{
+		Config: map[string]any{
 			"status":      200,
 			"message":     "Hello from Kong extension",
 			"body":        "some body",
@@ -233,7 +233,7 @@ func testStartEnablesPlugin(t *testing.T, instance *config.Instance) {
 func getSuccessfulPreparationState(t *testing.T, instance *config.Instance) *RequestTerminationState {
 	service := configureService(t, instance, getTestService())
 	requestBody := action_kit_api.PrepareActionRequestBody{
-		Config: map[string]interface{}{
+		Config: map[string]any{
 			"status":  200,
 			"message": "Hello from Kong extension",
 		},
