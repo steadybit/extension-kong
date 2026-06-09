@@ -1,51 +1,54 @@
 # Contributing
 
-## Build
-docker build -t steadybit/extension-kong .
+## Prerequisites
 
-## Running as docker container
+To build and run this extension locally, you need:
+
+- [Go](https://go.dev/dl/) 1.26 or later
+- [GNU Make](https://www.gnu.org/software/make/)
+- [GoReleaser](https://goreleaser.com/) (used by `make build`)
+- [Docker](https://www.docker.com/) (required for `make container` and container-based tests)
+- [Helm](https://helm.sh/docs/intro/install/) and [helm-unittest](https://github.com/helm-unittest/helm-unittest) (for chart development; `make charttesting` and `make chartlint`)
+
+## Getting Started
+
+1. Clone the repository
+2. `$ make tidy`
+3. `$ make run`
+4. `$ open http://localhost:8080`
+
+## Tasks
+
+The `Makefile` in the project root contains commands to easily run common admin tasks. Run `make help` to list all available targets.
+
+| Command            | Meaning                                                                                               |
+|--------------------|-------------------------------------------------------------------------------------------------------|
+| `$ make tidy`      | Format all code using `go fmt` and tidy the `go.mod` file.                                            |
+| `$ make audit`     | Run `go vet`, `staticcheck`, execute all tests and verify required modules.                           |
+| `$ make build`     | Build a binary for the extension. Creates a file called `extension` in the repository root directory. |
+| `$ make run`       | Build and then run the created binary.                                                                |
+| `$ make container` | Build the container image (`extension-kong:latest`) using Docker buildx.                              |
+
+## Releasing the Code/Docker Image
+
+To make a new release, do the following:
+
+ 1. Update the `CHANGELOG.md`
+ 2. Commit and push the changelog changes.
+ 3. Set the tag `git tag -a vX.X.X -m vX.X.X`
+ 4. Push the tag.
+
+## Releasing Helm Chart Changes
+
+ 1. Update the version number in the [Chart.yaml](./charts/steadybit-extension-kong/Chart.yaml)
+ 2. Commit and push the changes.
+
+Changing the Helm chart without bumping the version will result in the following error:
 
 ```
-docker run -d -p 8084:8084 --name extension-kong \
-	 -e "STEADYBIT_EXTENSION_KONG_INSTANCE_0_NAME=default" \
-	 -e "STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN=http://kong:8001" \
-	 ghcr.io/steadybit/extension-kong
+> Releasing charts...
+    Error: error creating GitHub release steadybit-extension-kong-1.0.0: POST https://api.github.com/repos/steadybit/extension-kong/releases: 422 Validation Failed [{Resource:Release Field:tag_name Code:already_exists Message:}]
 ```
-
-## Running Kong
-
-### Docker Guide:
-See https://docs.konghq.com/gateway/latest/install-and-run/docker/
-
-### Kubernetes using Helm:
-
-```
-helm upgrade --install --create-namespace --namespace kong -f examples/kong-values.yml kong kong/kong
-```
-
-Create Example service and route (with port forward on 8001 and 8000)
-```
-# create example service
-curl -i -X POST \
-  --url http://localhost:8001/services/ \
-  --data 'name=example-service' \
-  --data 'url=http://mockbin.org'
-echo ""
-
-# "create example route"
-curl -i -X POST \
-  --url http://localhost:8001/services/example-service/routes \
-  --data 'hosts[]=example.com'
-echo ""
-
-# "test route"
-curl -i \
-  --url http://localhost:8000 \
-  -H 'Host: example.com'
-```
-
-with these settings an admin api is accessible at http://kong-kong-admin.kong.svc.cluster.local:8001 inside the cluster.
-
 
 ## Contributor License Agreement (CLA)
 
@@ -57,4 +60,3 @@ If contributing on behalf of your company, your company must sign a [Corporate C
 
 If for any reason, your first contribution is in a PR created by other contributor, please just add a comment to the PR
 with the following text to agree our CLA: "I have read the CLA Document and I hereby sign the CLA".
-
