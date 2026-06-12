@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.0.24
+
+- build(deps): bump github.com/kong/go-kong from 0.75.1 to 0.76.0
+- build(deps): bump github.com/kong/go-kong from 0.76.0 to 0.76.1
+- build(deps): bump goreleaser/goreleaser from v2.15.4 to v2.16.0
+- chore: update to go 1.26.4
+- feat: add weekly auto patch-release workflow
+
 ## v2.0.23
 
 - Support discovery group attribute via `STEADYBIT_EXTENSION_DISCOVERY_GROUP` env var (or `discovery.group` Helm value) — when set, the extension adds `steadybit.group=<value>` to every discovered target
