@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.25
+
+- build(deps): bump alpine from 3.23 to 3.24
+- build: rename workflow_dispatch input labels for the GH UI
+- chore(deps): bump golang.org/x/net to v0.55.0 (CVE-2026-39821) (#242)
+
 ## v2.0.24
 
 - build(deps): bump github.com/kong/go-kong from 0.75.1 to 0.76.0
