@@ -100,12 +100,14 @@ func (i *Instance) FindRoute(service *kong.Service, nameOrId *string) (*kong.Rou
 	}
 	var routeFound *kong.Route
 	for _, route := range routes {
-		if *route.ID == *nameOrId || *route.Name == *nameOrId {
+		// Kong route Name is optional (and ID may be unset), so guard the dereferences.
+		if (route.ID != nil && *route.ID == *nameOrId) || (route.Name != nil && *route.Name == *nameOrId) {
 			routeFound = route
+			break
 		}
 	}
 	if routeFound == nil {
-		return nil, fmt.Errorf("the route %s does not belong to the service %s", *nameOrId, *service.Name)
+		return nil, fmt.Errorf("the route %s does not belong to the service %s", *nameOrId, kong.StringValue(service.Name))
 	}
 	return routeFound, nil
 }

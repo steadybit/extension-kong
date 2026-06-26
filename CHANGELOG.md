@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- fix: don't panic when matching Kong routes whose optional name (or id) is unset — `FindRoute` now nil-guards the comparisons (and the not-found error no longer dereferences an unset service name)
+
 ## v2.0.25
 
 - build(deps): bump alpine from 3.23 to 3.24
