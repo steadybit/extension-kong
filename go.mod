@@ -17,7 +17,7 @@ require (
 	github.com/steadybit/discovery-kit/go/discovery_kit_commons v0.3.1
 	github.com/steadybit/discovery-kit/go/discovery_kit_sdk v1.3.6
 	github.com/steadybit/discovery-kit/go/discovery_kit_test v1.2.1
-	github.com/steadybit/extension-kit v1.10.7
+	github.com/steadybit/extension-kit v1.10.8
 	github.com/stretchr/testify v1.11.1
 	github.com/testcontainers/testcontainers-go v0.43.0
 )
