@@ -4,8 +4,6 @@
 package main
 
 import (
-	"time"
-
 	_ "github.com/KimMachineGun/automemlimit" // By default, it sets `GOMEMLIMIT` to 90% of cgroup's memory limit.
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -22,8 +20,6 @@ import (
 	"github.com/steadybit/extension-kong/v2/config"
 	"github.com/steadybit/extension-kong/v2/kong"
 )
-
-var startedAt = time.Now().Format(time.RFC3339)
 
 func main() {
 	extlogging.InitZeroLog()
@@ -56,7 +52,7 @@ func main() {
 	action_kit_sdk.RegisterCoverageEndpoints()
 	exthealth.SetReady(true)
 
-	exthttp.RegisterHttpHandler("/", exthttp.IfNoneMatchHandler(func() string { return startedAt }, exthttp.GetterAsHandler(getExtensionList)))
+	exthttp.RegisterRevisionedHandler("/", getExtensionList)
 	exthttp.Listen(exthttp.ListenOpts{
 		Port: 8084,
 	})
