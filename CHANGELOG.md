@@ -1,8 +1,19 @@
 # Changelog
 
-## Unreleased
+## v2.0.26
 
+- build(deps): bump github.com/steadybit/action-kit/go/action_kit_sdk
+- build(deps): bump github.com/steadybit/discovery-kit/go/discovery_kit_sdk
+- build(deps): bump github.com/steadybit/extension-kit
+- build(deps): bump github.com/testcontainers/testcontainers-go
+- build(deps): bump golang.org/x/crypto from 0.51.0 to 0.52.0
+- build(deps): bump goreleaser/goreleaser from v2.16.0 to v2.17.0
+- chore(deps): bump go to 1.26.5 (#254)
+- chore: add Claude Code workflows (#248)
+- chore: silence SonarQube finding on secrets: inherit in Claude workflows
 - fix: don't panic when matching Kong routes whose optional name (or id) is unset — `FindRoute` now nil-guards the comparisons (and the not-found error no longer dereferences an unset service name)
+- fix: guard nil route name/id when matching Kong routes (#249)
+- refactor: register extension index via exthttp.RegisterRevisionedHandler (#256)
 
 ## v2.0.25
 
