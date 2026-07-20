@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.0.27
+
+- build(deps): bump github.com/kong/go-kong from 0.76.1 to 0.77.0
+- ci: skip build on .trivyignore.yml-only changes [skip ci]
+
 ## v2.0.26
 
 - build(deps): bump github.com/steadybit/action-kit/go/action_kit_sdk
