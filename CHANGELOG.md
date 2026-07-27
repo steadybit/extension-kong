@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.28
+
+- chore(deps): update dependencies
+
 ## v2.0.27
 
 - build(deps): bump github.com/kong/go-kong from 0.76.1 to 0.77.0
