@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.0.29
+
+- build(deps): bump goreleaser/goreleaser from v2.17.0 to v2.17.1
+- feat: support filtering targets out of discovery
+
 ## v2.0.28
 
 - chore(deps): update dependencies
