@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.30
+
+- build(deps): bump github.com/kong/go-kong from 0.77.0 to 0.78.0
+
 ## v2.0.29
 
 - build(deps): bump goreleaser/goreleaser from v2.17.0 to v2.17.1
