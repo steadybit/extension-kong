@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.32
+
+- build(deps): bump github.com/moby/go-archive from 0.2.0 to 0.3.0
+
 ## v2.0.31
 
 - build(deps): bump github.com/stretchr/testify from 1.11.1 to 1.12.0
