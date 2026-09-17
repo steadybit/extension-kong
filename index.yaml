@@ -12,6 +12,35 @@ entries:
           url: https://hub.steadybit.com
     apiVersion: v2
     appVersion: v2.0.35
+    created: "2026-09-17T13:59:40.369592272Z"
+    dependencies:
+    - name: extensionlib
+      repository: https://steadybit.github.io/helm-charts
+      version: ^1.5.5
+    description: Steadybit Kong extension Helm chart for Kubernetes.
+    digest: d83b2790601cf6d9e1d0138df5f62aadb8aeb2c1cfb62f4f4a368568d01af99f
+    home: https://www.steadybit.com/
+    icon: https://steadybit-website-assets.s3.amazonaws.com/logo-symbol-transparent.png
+    maintainers:
+    - email: daniel.reuter@steadybit.com
+      name: reuda
+    name: steadybit-extension-kong
+    sources:
+    - https://github.com/steadybit/extension-kong
+    urls:
+    - https://github.com/steadybit/extension-kong/releases/download/steadybit-extension-kong-1.7.36/steadybit-extension-kong-1.7.36.tgz
+    version: 1.7.36
+  - annotations:
+      artifacthub.io/images: |
+        - name: logo
+          image: https://steadybit-website-assets.s3.amazonaws.com/logo-symbol-transparent.png
+      artifacthub.io/links: |-
+        - name: Steadybit website
+          url: https://www.steadybit.com
+        - name: Steadybit reliability hub
+          url: https://hub.steadybit.com
+    apiVersion: v2
+    appVersion: v2.0.35
     created: "2026-09-14T06:25:10.080711373Z"
     dependencies:
     - name: extensionlib
@@ -1625,4 +1654,4 @@ entries:
     urls:
     - https://github.com/steadybit/extension-kong/releases/download/steadybit-extension-kong-1.6.4/steadybit-extension-kong-1.6.4.tgz
     version: 1.6.4
-generated: "2026-09-14T06:25:10.080865039Z"
+generated: "2026-09-17T13:59:40.369823042Z"
