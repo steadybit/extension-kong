@@ -136,8 +136,8 @@ github.com/kelseyhightower/envconfig v1.4.0 h1:Im6hONhd3pLkfDFsbRgu68RDNkGF1r3dv
 github.com/kelseyhightower/envconfig v1.4.0/go.mod h1:cccZRl6mQpaq41TPp5QxidR+Sa3axMbJDNb//FQX6Gg=
 github.com/klauspost/compress v1.20.0 h1:a3C1ke2ohxFymNlb2HWAHjDeKCI90scRskErZkR0ezA=
 github.com/klauspost/compress v1.20.0/go.mod h1:LUdAzn7YLVvxLpc7y3V1m40wESHTgc1422pwwBSKYuI=
-github.com/kong/go-kong v0.79.0 h1:upDuGUNS2UbQMFR3g1wlcXw7VmpJp5jc33XHGpFfVTc=
-github.com/kong/go-kong v0.79.0/go.mod h1:77mEn0XQ7maUS7HvF7qiqbNJEftcSAf0y7mKN1sA72U=
+github.com/kong/go-kong v0.80.0 h1:2gnfi6xh9F4Bam99QFcsNGzR+i7xlHyeLZOq6bNO8Rs=
+github.com/kong/go-kong v0.80.0/go.mod h1:77mEn0XQ7maUS7HvF7qiqbNJEftcSAf0y7mKN1sA72U=
 github.com/kong/semver/v4 v4.0.1 h1:DIcNR8W3gfx0KabFBADPalxxsp+q/5COwIFkkhrFQ2Y=
 github.com/kong/semver/v4 v4.0.1/go.mod h1:LImQ0oT15pJvSns/hs2laLca2zcYoHu5EsSNY0J6/QA=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
