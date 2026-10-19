@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.0.40
+
+- build(deps): bump github.com/kong/go-kong from 0.78.0 to 0.79.0
+- build(deps): bump goreleaser/goreleaser from v2.18.2 to v2.18.3
+
 ## v2.0.39
 
 - chore(deps): bump golang.org/x/net to v0.61.0
