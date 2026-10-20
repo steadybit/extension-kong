@@ -11,6 +11,8 @@ kong:
   headerKey: null
   # kong.headerValue -- Optional header value which will be transmitted to the Kong instance. Can be used for authentication purposes
   headerValue: null
+  # kong.insecureSkipVerify -- If true, the extension will skip TLS certificate verification when connecting to the Kong admin API (e.g. for self-signed certificates). Prefer mounting your CA, see README.
+  insecureSkipVerify: false
 
 image:
   # image.registry -- The container registry to use. Defaults to global.image.registry or ghcr.io.
@@ -142,6 +144,20 @@ extraEnv: []
 #  - secretRef:
 #    name: env-secrets
 extraEnvFrom: []
+
+# extraVolumeMounts -- Additional volumeMounts to add to the container, e.g. to mount custom CA certificates
+# extraVolumeMounts:
+#   - name: extra-certs
+#     mountPath: /etc/ssl/extra-certs
+#     readOnly: true
+extraVolumeMounts: []
+
+# extraVolumes -- Additional volumes to add to the pod
+# extraVolumes:
+#   - name: extra-certs
+#     configMap:
+#       name: kong-self-signed-ca
+extraVolumes: []
 
 
 discovery:
