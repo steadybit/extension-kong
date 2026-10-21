@@ -6,8 +6,12 @@ package config
 import (
 	"context"
 	"fmt"
-	"github.com/kong/go-kong/kong"
+	"net/http"
 	"os"
+	"sync"
+
+	"github.com/kong/go-kong/kong"
+	"github.com/steadybit/extension-kit/exttls"
 )
 
 type Instance struct {
@@ -19,6 +23,10 @@ type Instance struct {
 
 var (
 	Instances []Instance
+
+	// transport is shared by the clients of all instances, so connections are pooled across requests.
+	// It honours STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY and CAs mounted via SSL_CERT_DIR.
+	transport = sync.OnceValue(func() http.RoundTripper { return exttls.Transport() })
 )
 
 func init() {
@@ -73,7 +81,7 @@ func (i *Instance) GetClient() (*kong.Client, error) {
 		headers[i.HeaderKey] = []string{i.HeaderValue}
 	}
 
-	client := kong.HTTPClientWithHeaders(nil, headers)
+	client := kong.HTTPClientWithHeaders(&http.Client{Transport: transport()}, headers)
 	return kong.NewClient(&i.BaseUrl, client)
 }
 

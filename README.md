@@ -21,6 +21,7 @@ Learn about the capabilities of this extension in our [Reliability Hub](https://
 | `STEADYBIT_EXTENSION_KONG_INSTANCE_<n>_HEADER_VALUE`        | `kong.headerValue`                      | Optional header value to send to the Kong admin API. Typically used for authentication purposes.                       | no       |
 | `STEADYBIT_EXTENSION_DISCOVERY_ATTRIBUTES_EXCLUDES_SERVICE` | `discovery.attributes.excludes.service` | List of Target Attributes which will be excluded during discovery. Checked by key equality and supporting trailing "*" | no       |
 | `STEADYBIT_EXTENSION_DISCOVERY_ATTRIBUTES_EXCLUDES_ROUTE`   | `discovery.attributes.excludes.route`   | List of Target Attributes which will be excluded during discovery. Checked by key equality and supporting trailing "*" | no       |
+| `STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY`                  | `kong.insecureSkipVerify`               | Skip TLS certificate verification when connecting to the Kong admin API. Applies to all instances. See [Importing your own certificates](#importing-your-own-certificates). | no       |
 
 Beyond the settings above, this extension supports the configuration common to all Steadybit
 extensions:
@@ -31,6 +32,44 @@ extensions:
   stop the extension reporting targets you do not want.
 - [Group Matching](https://github.com/steadybit/discovery-kit/blob/main/docs/target-enrichment.md#group-matching) —
   tag discovered targets with a group, so enrichment rules only match within it.
+
+## Importing your own certificates
+
+If your Kong admin API is served with a self-signed certificate, or one issued by a private CA, either trust the CA
+(recommended) or skip certificate verification.
+
+### Option 1: Mounting custom certificates
+
+Store the CA certificate (`*.crt`) in a config map:
+
+```shell
+kubectl create configmap -n steadybit-agent kong-self-signed-ca --from-file=./self-signed-ca.crt
+```
+
+Then mount it and add it to the trusted certificate directories:
+
+```yaml
+extraVolumeMounts:
+  - name: extra-certs
+    mountPath: /etc/ssl/extra-certs
+    readOnly: true
+extraVolumes:
+  - name: extra-certs
+    configMap:
+      name: kong-self-signed-ca
+extraEnv:
+  - name: SSL_CERT_DIR
+    value: /etc/ssl/extra-certs:/etc/ssl/certs
+```
+
+### Option 2: Skipping certificate verification
+
+Disables TLS certificate verification. Suitable for testing, not recommended for production.
+
+```yaml
+kong:
+  insecureSkipVerify: true
+```
 
 ## Installation
 

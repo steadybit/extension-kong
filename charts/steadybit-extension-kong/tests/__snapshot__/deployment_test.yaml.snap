@@ -36,6 +36,8 @@ manifest should match snapshot using podAnnotations and Labels:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "false"
               image: ghcr.io/steadybit/extension-kong:v0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -117,6 +119,8 @@ manifest should match snapshot with TLS:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "false"
               image: ghcr.io/steadybit/extension-kong:v0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -165,6 +169,93 @@ manifest should match snapshot with TLS:
               secret:
                 optional: false
                 secretName: server-cert
+manifest should match snapshot with custom certificates and insecureSkipVerify:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        steadybit.com/discovery-disabled: "true"
+        steadybit.com/extension: "true"
+      name: RELEASE-NAME-steadybit-extension-kong
+      namespace: NAMESPACE
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/name: steadybit-extension-kong
+      template:
+        metadata:
+          annotations:
+            oneagent.dynatrace.com/injection: "false"
+          labels:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: steadybit-extension-kong
+            steadybit.com/discovery-disabled: "true"
+            steadybit.com/extension: "true"
+        spec:
+          containers:
+            - env:
+                - name: STEADYBIT_LOG_LEVEL
+                  value: INFO
+                - name: STEADYBIT_LOG_FORMAT
+                  value: text
+                - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_NAME
+                  value: null
+                - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
+                  value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "true"
+                - name: SSL_CERT_DIR
+                  value: /etc/ssl/extra-certs:/etc/ssl/certs
+              image: ghcr.io/steadybit/extension-kong:v0.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /health/liveness
+                  port: 8085
+                initialDelaySeconds: 10
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 5
+              name: extension
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /health/readiness
+                  port: 8085
+                initialDelaySeconds: 10
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
+                requests:
+                  cpu: 50m
+                  memory: 32Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+              volumeMounts:
+                - mountPath: /etc/ssl/extra-certs
+                  name: extra-certs
+                  readOnly: true
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: steadybit-extension-kong
+          volumes:
+            - configMap:
+                name: kong-self-signed-ca
+              name: extra-certs
 manifest should match snapshot with custom image registry:
   1: |
     apiVersion: apps/v1
@@ -201,6 +292,8 @@ manifest should match snapshot with custom image registry:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "false"
               image: my-registry.io/steadybit/extension-kong:v0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -278,6 +371,8 @@ manifest should match snapshot with extra env vars:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "false"
                 - name: FOO
                   value: bar
               envFrom:
@@ -364,6 +459,8 @@ manifest should match snapshot with extra labels:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "false"
               image: ghcr.io/steadybit/extension-kong:v0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -441,6 +538,8 @@ manifest should match snapshot with global image pull secrets:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "false"
               image: ghcr.io/steadybit/extension-kong:v0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -520,6 +619,8 @@ manifest should match snapshot with global image registry:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "false"
               image: corp-registry.io/steadybit/extension-kong:v0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -597,6 +698,8 @@ manifest should match snapshot with global priority class:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "false"
               image: ghcr.io/steadybit/extension-kong:v0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -675,6 +778,8 @@ manifest should match snapshot with image pull secrets:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "false"
               image: ghcr.io/steadybit/extension-kong:v0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -754,6 +859,8 @@ manifest should match snapshot with legacy image name containing registry:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "false"
               image: ghcr.io/steadybit/extension-kong:v0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -837,6 +944,8 @@ manifest should match snapshot with mutual TLS:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "false"
               image: ghcr.io/steadybit/extension-kong:v0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -934,6 +1043,8 @@ manifest should match snapshot with mutual TLS using containerPaths:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "false"
               image: ghcr.io/steadybit/extension-kong:v0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -1011,6 +1122,8 @@ manifest should match snapshot with podSecurityContext:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "false"
               image: ghcr.io/steadybit/extension-kong:v0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -1089,6 +1202,8 @@ manifest should match snapshot with priority class:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "false"
               image: ghcr.io/steadybit/extension-kong:v0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -1167,6 +1282,8 @@ manifest should match snapshot without TLS:
                   value: null
                 - name: STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN
                   value: null
+                - name: STEADYBIT_EXTENSION_INSECURE_SKIP_VERIFY
+                  value: "false"
               image: ghcr.io/steadybit/extension-kong:v0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
