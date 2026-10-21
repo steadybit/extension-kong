@@ -81,6 +81,8 @@ func TestWithMinikubeSelfSignedCertificate(t *testing.T) {
 
 	for _, scenario := range scenarios {
 		t.Run(scenario.name, func(t *testing.T) {
+			// Count only this scenario's handshake errors, so the assertion does not depend on scenario order.
+			server.tlsHandshakeErrors.Store(0)
 			extFactory := e2e.HelmExtensionFactory{
 				Name: "extension-kong",
 				Port: 8084,
