@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.0.41
+
+- build(deps): bump github.com/kong/go-kong from 0.79.0 to 0.80.0
+- build(docker): build with golang:1.27-alpine to pick up Go patch releases
+- chore(deps): bump action_kit_test to v1.4.13 (#280)
+- feat: support Kong admin APIs with self-signed certificates (#278)
+
 ## v2.0.40
 
 - build(deps): bump github.com/kong/go-kong from 0.78.0 to 0.79.0
