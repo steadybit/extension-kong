@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.42
+
+- build(deps): bump github.com/KimMachineGun/automemlimit
+
 ## v2.0.41
 
 - build(deps): bump github.com/kong/go-kong from 0.79.0 to 0.80.0
