@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- feat: the request termination attacks show the HTTP status code directly, and the response details and traffic filters (consumer, trigger) in the groups "Response Details" and "Traffic Filter" on platforms that support parameter groups
+
 ## v2.0.42
 
 - build(deps): bump github.com/KimMachineGun/automemlimit
