@@ -59,6 +59,14 @@ func (f ServiceTerminationAction) Describe() action_kit_api.ActionDescription {
 				DefaultValue: new("30s"),
 			},
 			{
+				Label:        "HTTP status code",
+				Name:         "status",
+				Type:         action_kit_api.ActionParameterTypeInteger,
+				DefaultValue: new("500"),
+				MinValue:     new(100),
+				MaxValue:     new(599),
+			},
+			{
 				Label:       "Consumer Username or ID",
 				Name:        "consumer",
 				Description: new("You may optionally define for which Kong consumer the traffic should be impacted."),
@@ -86,15 +94,6 @@ func (f ServiceTerminationAction) Describe() action_kit_api.ActionDescription {
 				Description: new("The raw response body to be returned for terminated requests. This is mutually exclusive with the message parameter. A body parameter takes precedence over the message parameter."),
 				Type:        action_kit_api.ActionParameterTypeString,
 				Advanced:    new(true),
-			},
-			{
-				Label:        "HTTP status code",
-				Name:         "status",
-				Type:         action_kit_api.ActionParameterTypeInteger,
-				Advanced:     new(true),
-				DefaultValue: new("500"),
-				MinValue:     new(100),
-				MaxValue:     new(599),
 			},
 			{
 				Label:       "Trigger",
