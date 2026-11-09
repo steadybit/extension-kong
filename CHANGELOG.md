@@ -1,7 +1,11 @@
 # Changelog
 
-## Unreleased
+## v2.0.43
 
+- build(deps): bump github.com/steadybit/action-kit/go/action_kit_api/v2
+- chore(deps): bump golang.org/x/net to v0.62.0
+- feat: show the HTTP status code of the Kong request termination attacks
+- feat: show the Kong response details and traffic filters in groups
 - feat: the request termination attacks show the HTTP status code directly, and the response details and traffic filters (consumer, trigger) in the groups "Response Details" and "Traffic Filter" on platforms that support parameter groups
 
 ## v2.0.42
