@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.44
+
+- build(deps): bump github.com/testcontainers/testcontainers-go
+
 ## v2.0.43
 
 - build(deps): bump github.com/steadybit/action-kit/go/action_kit_api/v2
