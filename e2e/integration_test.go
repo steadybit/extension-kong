@@ -21,10 +21,8 @@ func TestWithMinikube(t *testing.T) {
 		ExtraArgs: func(m *e2e.Minikube) []string {
 			return []string{
 				"--set", "logging.level=debug",
-				"--set", "extraEnv[0].name=STEADYBIT_EXTENSION_KONG_INSTANCE_0_NAME",
-				"--set", "extraEnv[0].value=Test_Kong",
-				"--set", "extraEnv[1].name=STEADYBIT_EXTENSION_KONG_INSTANCE_0_ORIGIN",
-				"--set", "extraEnv[1].value=http://host.minikube.internal",
+				"--set", "kong.name=Test_Kong",
+				"--set", "kong.origin=http://host.minikube.internal",
 			}
 		},
 	}
