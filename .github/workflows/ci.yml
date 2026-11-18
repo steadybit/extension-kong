@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   extension-ci:
-    uses: steadybit/extension-kit/.github/workflows/reusable-extension-ci.yml@main # NOSONAR githubactions:S7637 - our own action
+    uses: steadybit/extension-kit/.github/workflows/reusable-extension-ci.yml@ci/sonar-drop-fallback # NOSONAR githubactions:S7637 - our own action
     with:
       build_linux_packages: true
       VERSION_BUMPER_APPID: ${{ vars.GH_APP_STEADYBIT_APP_ID }}
